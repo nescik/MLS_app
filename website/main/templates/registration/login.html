@@ -8,8 +8,9 @@
 
 <form method="POST">
     {% csrf_token %}
-    {{form|crispy}}
-    <p>Nie posiadasz konta? <a href="/sign-up">Załóż teraz</a></p>
+    {{form.username|as_crispy_field}}
+    {{form.password|as_crispy_field}}
+    <p>Nie posiadasz konta? <a href="{% url 'sign-up' %}">Załóż teraz</a></p>
     <button type="submit" class="btn btn-success">Zaloguj się</button>
 </form>
 
