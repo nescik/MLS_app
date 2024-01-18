@@ -1,0 +1,126 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+.bg {
+    background-color: #121212;
+    color: white;
+}
+
+.main-container{
+    display: flex;
+    justify-content: center;
+
+}
+
+.nav-link {
+    color: white !important;
+}
+
+.login-icon {
+    padding-left: 16px !important;
+    padding-right: 48px !important;
+}
+
+.login-icon:hover {
+    background-color: white;
+    color: black !important;
+}
+
+.fa-user {
+    position: absolute !important;
+    padding: 12px !important;
+    right: -1px !important;
+    background-color: #121212;
+    color: white !important;
+}
+
+.asteriskField {
+     display: none !important;
+}
+
+.image-page{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-position: center;
+    background-image: url("../images/background.png");
+    background-size: cover; 
+    background-position: center; 
+    
+}
+
+.btn_link{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 15px;
+}
+
+.btn_back_home{
+
+    position: absolute;
+    bottom: 37px;
+    margin: 15px;
+
+}
+
+.registration-layout{
+    height: 100vh;
+    align-items: center;
+}
+
+.form-layout{
+    width: 350px;
+
+}
+
+.btn-submit{
+    height: 47px;
+    padding-left: 16px !important;
+    padding-right: 50px !important;
+}
+
+.fa-right-to-bracket{
+    position: absolute !important;
+    padding: 12px !important;
+    right: -2px !important;
+    background-color: #121212;
+    color: white !important;
+    
+}
+
+.fa-user-plus{
+    position: absolute !important;
+    padding: 12px !important;
+    right: -2px !important;
+    background-color: #121212;
+    color: white !important;
+}
+
+
+
+.form-layout form input {
+    background-color:#292929;
+    border: none;
+    color: white;
+    border-bottom: solid 2px #373737;
+}
+
+.form-layout form input:focus{
+    background-color:#292929;
+    color: white;
+    border-bottom: solid 2px rgb(167, 167, 167);
+    outline: none;
+    box-shadow: 0 0 10px rgba(167, 167, 167);
+}
+
+.form-text{
+    display: none;
+}

@@ -6,12 +6,32 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<form method="POST">
-    {% csrf_token %}
-    {{form|crispy}}
-    <p>Posiadasz konta? <a href="{% url 'my-login' %}">Zaloguj się</a></p>
-    <button type="submit" class="btn btn-success">Zarejestruj się</button>
-</form>
+
+<div class="container-fluid">
+    <div class="row ">
+        <div class="col position-relative">
+            <div class="image-page">
+            </div>
+        </div>
+        <div class="col d-flex justify-content-center registration-layout position-relative">
+            <div class="form-layout">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{form.username|as_crispy_field}}
+                    {{form.email|as_crispy_field}}
+                    {{form.password1|as_crispy_field}}
+                    {{form.password2|as_crispy_field}}
+                    <button type="submit" class="btn btn-outline-light border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative btn-submit">Zarejestruj się <i class="fa-solid fa-user-plus border border-2 border-light rounded-circle position-absolute"></i></button>
+                </form>
+            </div>
+            <a href="{% url 'my-login' %}" class="btn btn-outline-light border-2 rounded-pill btn_link" role="button">Zaloguj się</a>
+            <a href="{% url 'home' %}" class="btn btn-outline-light border-2 rounded-pill btn_back_home" role="button">Strona główna</a>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 {% endblock content %}

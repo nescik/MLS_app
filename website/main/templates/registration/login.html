@@ -1,17 +1,33 @@
-{% extends "main/base.html" %}
-
-{% block title %}
-    Logowanie
-{% endblock title %}
-{% load crispy_forms_tags %}
+{% extends "main/base.html" %} 
+{% block title %} Logowanie {% endblock title %}
+{% load crispy_forms_tags %} 
 {% block content %}
 
-<form method="POST">
-    {% csrf_token %}
-    {{form.username|as_crispy_field}}
-    {{form.password|as_crispy_field}}
-    <p>Nie posiadasz konta? <a href="{% url 'sign-up' %}">Załóż teraz</a></p>
-    <button type="submit" class="btn btn-success">Zaloguj się</button>
-</form>
+
+
+
+<div class="container-fluid">
+    <div class="row ">
+        <div class="col position-relative">
+            <div class="image-page">
+            </div>
+        </div>
+        <div class="col d-flex justify-content-center registration-layout position-relative">
+            <div class="form-layout">
+              <form method="POST">
+                {% csrf_token %} 
+                {{form.username|as_crispy_field}}
+                {{form.password|as_crispy_field}}
+                <button type="submit" class="btn btn-outline-light border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative btn-submit">Zaloguj się <i class="fa-solid fa-right-to-bracket border border-2 border-light rounded-circle position-absolute"></i></button>
+              </form>
+            </div>
+            <a href="{% url 'sign-up' %}" class="btn btn-outline-light border-2 rounded-pill btn_link" role="button">Zarejestruj się</a>
+            <a href="{% url 'home' %}" class="btn btn-outline-light border-2 rounded-pill btn_back_home" role="button">Strona główna</a>
+        </div>
+    </div>
+</div>
+
+
+
 
 {% endblock content %}
