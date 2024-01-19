@@ -7,7 +7,6 @@ def home(request):
     return render(request, 'main/home.html')
 
 
-
 def sign_up(request):
 
     if request.method == 'POST':
@@ -47,3 +46,19 @@ def user_logout(request):
     auth.logout(request)
 
     return redirect('my-login')
+
+def user_profile(request):
+    return render(request, 'user_profile/account_general.html')
+
+
+def account_general(request):
+    return render(request, 'user_profile/account_general.html')
+
+def account_change_password(request):
+    return render(request, 'user_profile/account_change_password.html') 
+
+def account_info(request):
+    return render (request, 'user_profile/account_info.html')
+
+def account_social(request):
+    return render (request, 'user_profile/account_social.html')

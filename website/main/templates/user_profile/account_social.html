@@ -1,0 +1,45 @@
+{% extends "user_profile/account_general.html" %}
+
+
+{% block title %}
+    Social media
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+    {% block title_profile %}
+    Ustawienia konta - Social media
+    {% endblock title_profile %}
+
+
+    {% block profile-content %}
+
+    <div class="tab-pane" id="account-social-links">
+        <div class="card-body pb-2">
+            <div class="form-group">
+                <label class="form-label">Twitter</label>
+                <input type="text" class="form-control" value="https://twitter.com/user">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Facebook</label>
+                <input type="text" class="form-control" value="https://www.facebook.com/user">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Google+</label>
+                <input type="text" class="form-control" value>
+            </div>
+            <div class="form-group">
+                <label class="form-label">LinkedIn</label>
+                <input type="text" class="form-control" value>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Instagram</label>
+                <input type="text" class="form-control" value="https://www.instagram.com/user">
+            </div>
+        </div>
+    </div>
+      
+    {% endblock profile-content %}
+
