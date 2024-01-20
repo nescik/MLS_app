@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
-
-
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -15,4 +15,4 @@ urlpatterns = [
     path('account-change-password', views.account_change_password, name='account-change-password'),
     path('account-info', views.account_info, name='account-info'),
     path('account-social', views.account_social, name='account-social')
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

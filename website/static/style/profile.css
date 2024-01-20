@@ -1,7 +1,10 @@
 
 .ui-w-80 {
-    width : 120px !important;
-    height: auto;
+    width : 150px !important;
+    height: 150px;
+    margin-bottom: 10px;
+    object-fit: cover;
+    border-radius: 20px;
 }
 
 .btn-default {
@@ -13,6 +16,7 @@
 .profile-content{
     min-height: 700px !important;
     align-items: center;
+    
 }
 
 label.btn {
