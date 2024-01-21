@@ -2,8 +2,7 @@ from collections.abc import Mapping
 from typing import Any
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.forms import ModelForm
 from .models import Profile
@@ -29,8 +28,8 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=TextInput())
     password = forms.CharField(widget=PasswordInput())
 
-    def __init__(self, request: Any = ..., *args: Any, **kwargs: Any) -> None:
-        super().__init__(request, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
 
         self.fields['username'].label = 'Nazwa użytkownika'
         self.fields['password'].label = 'Hasło'
@@ -65,3 +64,19 @@ class EditUserForm(ModelForm):
             profile.save()
 
         return user
+    
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(widget=PasswordInput())
+    new_password1 = forms.CharField(widget=PasswordInput())
+    new_password2 = forms.CharField(widget=PasswordInput())
+
+    class Meta:
+        model = User
+        fields = ['old_password','new_password1','new_password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+        self.fields['old_password'].label = 'Stare hasło'
+        self.fields['new_password1'].label = 'Nowe hasło'
+        self.fields['new_password2'].label = 'Powtórz hasło'

@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, LoginForm, EditUserForm
-from django.contrib.auth import login, logout, authenticate
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import auth, User
-
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+from .models import Profile
+from django.contrib import messages
 
 def home(request):
     return render(request, 'main/home.html')
@@ -35,8 +38,13 @@ def my_login(request):
         if user is not None:
             auth.login(request, user)
 
-            return redirect('home')
-    
+            profile = user.profile
+            if not profile.is_profile_complete():
+                messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
+                return redirect('account-general')
+            else:
+                return redirect('home')
+            
     context = {"form":form}
 
     return render(request, 'registration/login.html', context=context)
@@ -66,12 +74,26 @@ def account_general(request):
             else:
                 form.save()
                 return redirect(account_general)
+    profile = request.user.profile
+    if not profile.is_profile_complete():
+                messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
 
     contex = {'form':form}
     return render(request, 'user_profile/account_general.html', context=contex)
 
+
+class PasswordsChangeView(PasswordChangeView):
+    form_class = CustomPasswordChangeForm
+    success_url = reverse_lazy('account-general')
+
+
+
 def account_change_password(request):
+
     return render(request, 'user_profile/account_change_password.html') 
+
+
+
 
 def account_info(request):
     return render (request, 'user_profile/account_info.html')

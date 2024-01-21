@@ -12,17 +12,17 @@
 
 {% block content %}
 
-<div class="container light-style flex-grow-1 container-p-y">
+<div class="container light-style flex-grow-1 container-p-y ">
     <h4 class="font-weight-bold py-3 mb-4">
         {% block title_profile %}
             Ustawienia konta - Ogólne
         {% endblock title_profile %}
     </h4>
-    <div class="card overflow-hidden mb-5">
-        <div class="row no-gutters row-bordered row-border-light">
+    <div class="card overflow-hidden mb-5 profile-panel panel-shadow">
+        <div class="row no-gutters">
             <div class="col-md-3 pt-0">
-                <div class="list-group list-group-flush account-settings-links">
-                    <a class="list-group-item list-group-item-action" 
+                <div class="list-group list-group-flush account-settings-links p-3 ">
+                    <a class="list-group-item list-group-item-action " 
                         href="{% url 'account-general' %}">Ogólne</a>
                     <a class="list-group-item list-group-item-action" 
                         href="{% url 'account-change-password' %}">Zmień hasło</a>
@@ -35,7 +35,14 @@
                 <div class="col-md-9 profile-content">
                     {% block profile-content %}
                         <div class="tab-content">
-                            <div class="tab-pane fade active show" id="account-general">
+                            {% if messages %}
+                                {% for message in messages  %}
+                                <div class="alert alert-danger m-3" role="alert">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="tab-pane active show" id="account-general">
                                     <form method="POST" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <div class="card-body media align-items-center">
@@ -44,7 +51,7 @@
                                                 {{form.image|as_crispy_field}}
                                             </div>
                                         </div>
-                                        <hr class="border-light m-0">
+                                        <hr class=" m-0">
                                         <div class="card-body">
                                         <div class="form-group">
                                             {{form.username|as_crispy_field}}
@@ -87,7 +94,7 @@
             // Sprawdzamy, czy aktualny link odpowiada aktualnemu adresowi URL
             if (currentUrl.indexOf(linkUrl) !== -1) {
                 // Dodajemy klasę active, jeśli link jest aktywny
-                $(this).addClass('active');
+                $(this).addClass('list-group-item-action active');
             }
         });
     });
