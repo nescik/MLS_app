@@ -30,6 +30,10 @@
     border-bottom: solid 2px #373737;
 }
 
+.profile-content textarea{
+    height: 180px !important;
+}
+
 
 .profile-content textarea:focus, .profile-content input:focus{
     background-color:#292929;
@@ -105,7 +109,12 @@ html:not(.dark-style) .account-settings-links .list-group-item.active {
 
 .list-group a:hover{
     background-color: #6e6e6e;
+}
 
+.password-info li{
+    background-color: #121212 !important;
+    color: white;
+    border: none;
 }
 
 .light-style .account-settings-links .list-group-item {

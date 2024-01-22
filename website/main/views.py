@@ -1,14 +1,34 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
-from .models import Profile
 from django.contrib import messages
+from .models import Team
 
 def home(request):
-    return render(request, 'main/home.html')
+    teams = Team.objects.all()
+    
+
+    if request.method == 'POST':
+        form = CreateTeamForm(request.POST)
+        if form.is_valid():
+            founder = request.user
+            team = form.save(commit=False)
+            team.founder = founder
+            team.save() 
+
+            members = form.cleaned_data['members']
+            team.members.set(members)
+            team.members.add(founder)
+            
+            return redirect('home')
+    else:
+        form = CreateTeamForm()
+
+    context = {'teams':teams, 'form':form}
+    return render(request, 'main/home.html', context=context)
 
 
 def sign_up(request):
@@ -73,10 +93,11 @@ def account_general(request):
                 form.add_error('email', 'Istnieje użytkownik z podanym adresem email!')
             else:
                 form.save()
+                messages.success(request, 'Informacje zostały zauktualizowane')
                 return redirect(account_general)
     profile = request.user.profile
     if not profile.is_profile_complete():
-                messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
+                messages.warning(request, 'Prosze uzupełnić imię oraz nazwisko!')
 
     contex = {'form':form}
     return render(request, 'user_profile/account_general.html', context=contex)
@@ -84,19 +105,31 @@ def account_general(request):
 
 class PasswordsChangeView(PasswordChangeView):
     form_class = CustomPasswordChangeForm
-    success_url = reverse_lazy('account-general')
+    success_url = reverse_lazy('account-change-password')
 
-
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Hasło zostało zmienione pomyślnie')
+        return response        
+    
 
 def account_change_password(request):
 
     return render(request, 'user_profile/account_change_password.html') 
 
 
-
-
 def account_info(request):
-    return render (request, 'user_profile/account_info.html')
+    profile = request.user.profile
+    form = EditInfoUserForm(request.POST or None, instance=profile)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Informacje zostały zauktualizowane')
+            return redirect ('account-info')
+
+    context = {'form':form}
+    return render (request, 'user_profile/account_info.html', context=context)
 
 def account_social(request):
     return render (request, 'user_profile/account_social.html')

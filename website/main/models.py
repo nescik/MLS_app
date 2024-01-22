@@ -4,6 +4,8 @@ from django.utils.deconstruct import deconstructible
 import os
 import uuid
 from PIL import Image, ExifTags
+from django_countries.fields import CountryField
+
 
 @deconstructible
 class UniqueFileName:
@@ -18,6 +20,12 @@ class UniqueFileName:
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default='default.jpg', upload_to=UniqueFileName('profile_pics'))
+    bio = models.TextField(max_length=500, blank=True, null=True)
+    country = CountryField(default = 'PL')
+    age = models.PositiveSmallIntegerField(blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    website = models.CharField(max_length=255, blank=True, null=True)
+
     def __str__(self) :
         return f'{self.user.username} Profile'
     
@@ -49,3 +57,11 @@ class Profile(models.Model):
         return bool(self.user.first_name and self.user.last_name)
 
         
+class Team(models.Model):
+    name = models.CharField(max_length=255)
+    founder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_founder')
+    members = models.ManyToManyField(User, related_name='team_member', blank=True)
+
+    def __str__(self):
+        return self.name
+    

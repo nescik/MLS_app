@@ -16,7 +16,9 @@ urlpatterns = [
     path('account-general', views.account_general, name='account-general'),
     path('account-change-password', PasswordsChangeView.as_view(template_name='user_profile/account_change_password.html'), name='account-change-password'),
     path('account-info', views.account_info, name='account-info'),
-    path('account-social', views.account_social, name='account-social')
+    path('account-social', views.account_social, name='account-social'),
+
+    #Teams
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

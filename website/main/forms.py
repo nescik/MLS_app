@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.forms import ModelForm
-from .models import Profile
+from .models import Profile, Team
+from django_countries.widgets import CountrySelectWidget
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -34,7 +35,7 @@ class LoginForm(AuthenticationForm):
         self.fields['username'].label = 'Nazwa użytkownika'
         self.fields['password'].label = 'Hasło'
 
-class ProfileForm(forms.ModelForm):
+class ProfileForm(ModelForm):
     class Meta:
         model = Profile
         fields = ['image']
@@ -65,6 +66,14 @@ class EditUserForm(ModelForm):
 
         return user
     
+class EditInfoUserForm(ModelForm):
+    class Meta:
+        model = Profile
+
+        fields = ['bio','country','age','phone_number','website']
+        widgets = {'country':CountrySelectWidget()}
+
+    
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(widget=PasswordInput())
     new_password1 = forms.CharField(widget=PasswordInput())
@@ -80,3 +89,8 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         self.fields['old_password'].label = 'Stare hasło'
         self.fields['new_password1'].label = 'Nowe hasło'
         self.fields['new_password2'].label = 'Powtórz hasło'
+
+class CreateTeamForm(ModelForm):
+    class Meta:
+        model = Team
+        fields = ['name', 'members']
