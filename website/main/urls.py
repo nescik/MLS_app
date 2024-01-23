@@ -19,6 +19,6 @@ urlpatterns = [
     path('account-social', views.account_social, name='account-social'),
 
     #Teams
-
+    path('team/<int:id>', views.team_detail, name='team_detail')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

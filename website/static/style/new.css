@@ -2,11 +2,25 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
 }
 
+::-webkit-scrollbar {
+    width: 12px; /* Szerokość paska przewijania */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* Kolor samego paska */
+    border-radius: 6px; /* Zaokrąglenie rogów paska */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Kolor tła paska przewijania */
+    border-radius: 12px; /* Zaokrąglenie rogów tła paska */
+}
 
 .bg {
-    background-color: #121212;
+    background-color: #121212 !important; 
     color: white;
 }
 
@@ -16,6 +30,9 @@
 
 }
 
+.navbar{
+    height: 76px !important;
+}
 .nav-link {
     color: white !important;
 }
@@ -30,7 +47,12 @@
     color: black !important;
 }
 
-.fa-user {
+.new_team{
+    height: 45px;
+    width: 190px !important;
+}
+
+.fa-user, .fa-people-group {
     position: absolute !important;
     padding: 12px !important;
     right: -1px !important;
@@ -111,20 +133,22 @@
 
 
 
-.form-layout form input {
-    background-color:#292929;
+.form-layout form input, .form-layout form select {
+    background-color:#292929 ;
     border: none;
     color: white;
     border-bottom: solid 2px #373737;
 }
 
-.form-layout form input:focus{
+.form-layout form input:focus, .form-layout form select:focus {
     background-color:#292929;
     color: white;
     border-bottom: solid 2px rgb(167, 167, 167);
     outline: none;
     box-shadow: 0 0 10px rgba(167, 167, 167);
 }
+
+
 
 .form-text{
     display: none;
@@ -138,3 +162,54 @@
 }
 
 
+.modal-content{
+    background-color: #121212 !important;
+}
+
+
+.team-link{
+    text-decoration: none;
+    color: white;
+}
+
+.custom-border {
+    position: relative;
+    width: 220px !important;
+    height: 220px !important;
+    border-radius: 20px;
+    padding: 11px;
+}
+
+.custom-border h5 {
+    font-size: 35px !important;
+}
+
+.custom-border:hover{
+    background-color: #373737;
+}
+
+.custom-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15%;
+    height: 15%;
+    border-right: 4px solid white;
+    border-top: 4px solid white;
+    box-sizing: border-box; 
+    border-top-right-radius: 20px;
+}
+
+.custom-border::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 15%;
+    height: 15%;
+    border-left: 4px solid white;
+    border-bottom: 4px solid white;
+    box-sizing: border-box;  
+    border-bottom-left-radius: 20px;      
+}

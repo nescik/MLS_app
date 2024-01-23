@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import auth, User
@@ -6,6 +6,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team
+
 
 def home(request):
     teams = Team.objects.all()
@@ -133,3 +134,11 @@ def account_info(request):
 
 def account_social(request):
     return render (request, 'user_profile/account_social.html')
+
+def team_detail(request, id):
+
+    team = get_object_or_404(Team, pk=id)
+
+    context = {'team':team}
+
+    return render(request, 'teams/team_detail.html', context=context)

@@ -1,0 +1,36 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Zespół {{ team.name }}
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block content %}
+
+<div class="container-fluid team-container ">
+    <div class="row ">
+        <div class="col-10 team-col">
+            <h1>{{team.name}}</h1>
+
+        </div>
+        <div class="col-2 members-col" >
+            <h5 class="text-center ">Członkowie</h5>
+          {% for member in team.members.all %}
+            <div class="row d-flex align-items-center ">
+                <div class="member-name">
+                <img src="{{ member.profile.image.url }}" class="rounded-circle img-profile">
+                {{member.get_full_name}}
+            </div>
+            </div>
+          {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
