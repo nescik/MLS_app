@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File
 from django.contrib.auth.decorators import login_required
-
+from django.http import HttpResponse
 
 @login_required
 def home(request):
@@ -143,7 +143,7 @@ def team_detail(request, id):
 
     context = {'team':team}
 
-    return render(request, 'teams/team_detail.html', context=context)
+    return render(request, 'teams/team_files.html', context=context)
 
 @login_required
 def team_files(request, id):
@@ -155,10 +155,28 @@ def team_files(request, id):
     return render(request, 'teams/team_files.html', context=context)
 
 @login_required
+def download_file(request,id):
+    file_instance = get_object_or_404(File, pk=id)
+    return file_instance.download(request)
+
+@login_required
 def team_add_file(request, id):
     team = get_object_or_404(Team, pk=id)
+    user = request.user
+    user_files = File.objects.filter(team=team, author=user)
 
-    context = {'team':team}
+    if request.method == 'POST':
+        form = AddFileForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            file = form.save(commit=False)
+            file.team = team
+            file.author = user
+            file.save()
+            return redirect('team_files', id=team.id)
+    else:
+        form = AddFileForm()
+
+    context = {'team':team, 'form':form, 'user_files':user_files}
     return render(request, 'teams/team_add_file.html', context=context)
 
 @login_required

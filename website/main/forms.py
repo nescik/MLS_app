@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.forms import ModelForm
-from .models import Profile, Team
+from .models import Profile, Team, File
 from django_countries.widgets import CountrySelectWidget
 
 class RegisterForm(UserCreationForm):
@@ -94,3 +94,14 @@ class CreateTeamForm(ModelForm):
     class Meta:
         model = Team
         fields = ['name', 'members']
+
+class AddFileForm(ModelForm):
+    class Meta:
+        model = File
+        fields = ['file', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['file'].label = 'Plik'
+        self.fields['description'].label = 'Opis'

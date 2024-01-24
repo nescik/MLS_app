@@ -75,3 +75,17 @@
     border-radius: 12px;
 }
 
+form input {
+    background-color:#292929 !important;
+    border: none !important;
+    color: white !important;
+    border-bottom: solid 2px #373737!important;
+}
+
+form input:focus{
+    background-color:#292929!important;
+    color: white!important;
+    border-bottom: solid 2px rgb(167, 167, 167)!important;
+    outline: none!important;
+    box-shadow: 0 0 10px rgba(167, 167, 167)!important;
+}

@@ -13,7 +13,25 @@
 
 {% block team-content %}
 
-<h1>NOWY PLIK</h1>
+
+<div class="row mt-5">
+    <div class="col-5">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form|crispy}}
+            <button type="submit" class="btn btn-outline-light border-2 rounded-pill">Dodaj</button>
+        </form>
+    </div>
+    <div class="col-7  p-3">
+        <h4>Wcześniej przesłane przez ciebie pliki...</h4>
+        <div class="row">
+            {% for file in user_files %}
+              <p>{{file.get_file_name}}</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 
 
 {% endblock %}

@@ -7,7 +7,8 @@ from PIL import Image, ExifTags
 from django_countries.fields import CountryField
 from django.utils import timezone
 from django.core.validators import FileExtensionValidator
-from django.core.exceptions import ValidationError
+from django.http import HttpResponse
+from mimetypes import guess_type
 
 @deconstructible
 class UniqueFileName:
@@ -83,3 +84,11 @@ class File(models.Model):
     
     def get_file_name(self):
         return os.path.basename(self.file.name)
+    
+    def download(self, request):
+        file_content = self.file.read()
+        mime_type, _ = guess_type(self.file.name)
+        response = HttpResponse(file_content, content_type=mime_type)
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(self.file.name)}"'
+
+        return response

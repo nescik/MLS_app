@@ -50,7 +50,7 @@
             <h2 class="mb-5">Twoje zespoły</h2>
             {% for team in teams %}
                 <div class="col-md-4 mb-4">
-                    <a href="{% url 'team_detail' team.id %}" class="team-link">
+                    <a href="{% url 'team_files' team.id %}" class="team-link">
                         <div class="custom-border align-items-center d-flex justify-content-center ">
                             <h5>
                                 {{ team.name }}
