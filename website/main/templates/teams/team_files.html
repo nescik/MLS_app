@@ -1,0 +1,22 @@
+{% extends "teams/team_detail.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Zespół {{ team.name }}
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block team-content %}
+
+<h1>PLIKI</h1>
+
+{% for file in files  %}
+  {{file.get_file_name}} {{file.description}}
+{% endfor %}
+
+{% endblock %}

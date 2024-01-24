@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .models import Team
+from .models import Team, File
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def home(request):
     teams = Team.objects.all()
     
@@ -57,7 +59,7 @@ def my_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            auth.login(request, user)
+            login(request, user)
 
             profile = user.profile
             if not profile.is_profile_complete():
@@ -77,10 +79,9 @@ def user_logout(request):
 
     return redirect('my-login')
 
-def user_profile(request):
-    return render(request, 'user_profile/account_general.html')
 
 
+@login_required
 def account_general(request):
 
     user = request.user
@@ -113,12 +114,12 @@ class PasswordsChangeView(PasswordChangeView):
         messages.success(self.request, 'Hasło zostało zmienione pomyślnie')
         return response        
     
-
+@login_required
 def account_change_password(request):
 
     return render(request, 'user_profile/account_change_password.html') 
 
-
+@login_required
 def account_info(request):
     profile = request.user.profile
     form = EditInfoUserForm(request.POST or None, instance=profile)
@@ -135,6 +136,7 @@ def account_info(request):
 def account_social(request):
     return render (request, 'user_profile/account_social.html')
 
+@login_required
 def team_detail(request, id):
 
     team = get_object_or_404(Team, pk=id)
@@ -142,3 +144,33 @@ def team_detail(request, id):
     context = {'team':team}
 
     return render(request, 'teams/team_detail.html', context=context)
+
+@login_required
+def team_files(request, id):
+    team = get_object_or_404(Team, pk=id)
+
+    files = File.objects.filter(team=team)
+
+    context = {'team':team,  'files':files}
+    return render(request, 'teams/team_files.html', context=context)
+
+@login_required
+def team_add_file(request, id):
+    team = get_object_or_404(Team, pk=id)
+
+    context = {'team':team}
+    return render(request, 'teams/team_add_file.html', context=context)
+
+@login_required
+def team_permission(request, id):
+    team = get_object_or_404(Team, pk=id)
+
+    context = {'team':team}
+    return render(request, 'teams/team_permission.html', context=context)
+
+@login_required
+def team_add_member(request, id):
+    team = get_object_or_404(Team, pk=id)
+
+    context = {'team':team}
+    return render(request, 'teams/team_add_member.html', context=context)

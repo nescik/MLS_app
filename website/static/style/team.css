@@ -2,26 +2,31 @@
 
 .team-container{
     height: calc(100vh - 76px);
-    background-color: #121212;
-    margin-left: 20px !important;
-    margin-right: 20px !important;
-    padding-top: 20px;
+    background-color: #222222;
+
+
 }
 
 .team-col{
-    box-shadow: 0 0 10px rgba(167, 167, 167);
     border-radius: 20px;
-    width: 81% !important;
+    width: 80% !important;
     margin-right: 40px;
-    height: 100vh;
+    padding: 20px;
+}
+
+.nav-tabs .nav-link.active{
+    /* background-color: #373737 !important; */
+    color: black !important;
+    font-weight: 700 !important;
 }
 
 .members-col{
-    box-shadow: 0 0 10px rgba(167, 167, 167);
+    box-shadow: 0 0 20px rgb(52, 52, 52) !important;
     max-height: 780px !important;
     border-radius: 20px;
     padding: 20px;
     overflow:auto;
+    margin-top: 20px !important; 
 }
 
 .members-col::-webkit-scrollbar{
@@ -35,8 +40,35 @@
 .member-name {
     font-size: 24px;
     width: auto;
-    padding: 5px;
+    padding: 8px;
+    position: relative;
 }
+
+/* .member-name::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 50%;
+    border-right: 2px solid white;
+    border-top: 2px solid white;
+    box-sizing: border-box; 
+    border-top-right-radius: 12px;
+}
+
+.member-name::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80%;
+    height: 50%;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    box-sizing: border-box;  
+    border-bottom-left-radius: 20px;      
+} */
 
 .member-name:hover{
     background-color: #373737;

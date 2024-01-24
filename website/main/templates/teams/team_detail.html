@@ -16,21 +16,58 @@
 <div class="container-fluid team-container ">
     <div class="row ">
         <div class="col-10 team-col">
-            <h1>{{team.name}}</h1>
-
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link" aria-current="page" href="{% url 'team_files' team.id %}">Pliki</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'team_permission' team.id %}">Uprawnienia</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'team_add_file' team.id %}">Prześlij pliki</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'team_add_member' team.id %}">Dodaj członka</a>
+                </li>
+              </ul>
+            <div class="team-content">
+              {% block team-content %}
+                
+              {% endblock team-content %}
+            </div>
         </div>
         <div class="col-2 members-col" >
             <h5 class="text-center ">Członkowie</h5>
           {% for member in team.members.all %}
             <div class="row d-flex align-items-center ">
-                <div class="member-name">
-                <img src="{{ member.profile.image.url }}" class="rounded-circle img-profile">
-                {{member.get_full_name}}
-            </div>
+                <div class="member-name d-flex justify-content-between ">
+                    <div>
+                      <img src="{{ member.profile.image.url }}" class="rounded-circle img-profile">
+                      {% if member.get_full_name %}
+                          {{ member.get_full_name }}
+                      {% else %}
+                          {{ member.username }}
+                      {% endif %}
+                    </div>
+                </div>
             </div>
           {% endfor %}
         </div>
     </div>
 </div>
+
+<script>
+  $(document).ready(function () {
+      var currentUrl = window.location.href;
+
+      $('.nav-tabs a').each(function () {
+          var linkUrl = $(this).attr('href');
+
+          if (currentUrl.indexOf(linkUrl) !== -1) {
+              $(this).addClass('active');
+          }
+      });
+  });
+</script>
 
 {% endblock content %}

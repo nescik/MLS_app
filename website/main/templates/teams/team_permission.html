@@ -1,0 +1,18 @@
+{% extends "teams/team_detail.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Zespół {{ team.name }}
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block team-content %}
+
+<h1>Uprawnienia</h1>
+
+{% endblock %}

@@ -5,7 +5,9 @@ import os
 import uuid
 from PIL import Image, ExifTags
 from django_countries.fields import CountryField
-
+from django.utils import timezone
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 
 @deconstructible
 class UniqueFileName:
@@ -65,3 +67,19 @@ class Team(models.Model):
     def __str__(self):
         return self.name
     
+class CustomFileExtensionValidator(FileExtensionValidator):
+    message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
+
+
+class File(models.Model):
+    description = models.CharField(max_length=255)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='team_files/', validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
+    upload_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.description
+    
+    def get_file_name(self):
+        return os.path.basename(self.file.name)
