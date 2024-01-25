@@ -22,8 +22,8 @@
             <button type="submit" class="btn btn-outline-light border-2 rounded-pill">Dodaj</button>
         </form>
     </div>
-    <div class="col-7  p-3">
-        <h4>Wcześniej przesłane przez ciebie pliki...</h4>
+    <div class="col-6 p-4 my-shadow">
+        <h4 class="mb-3">Wcześniej przesłane przez ciebie pliki...</h4>
         <div class="row">
             {% for file in user_files %}
               <p>{{file.get_file_name}}</p>

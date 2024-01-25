@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
@@ -12,7 +12,7 @@ from django.http import HttpResponse
 @login_required
 def home(request):
     teams = Team.objects.all()
-    
+    user = request.user
 
     if request.method == 'POST':
         form = CreateTeamForm(request.POST)
@@ -30,7 +30,7 @@ def home(request):
     else:
         form = CreateTeamForm()
 
-    context = {'teams':teams, 'form':form}
+    context = {'teams':teams, 'form':form, 'user':user}
     return render(request, 'main/home.html', context=context)
 
 
@@ -141,7 +141,10 @@ def team_detail(request, id):
 
     team = get_object_or_404(Team, pk=id)
 
-    context = {'team':team}
+    if request.user.is_authenticated:
+        user = request.user
+
+    context = {'team':team, 'user':user}
 
     return render(request, 'teams/team_files.html', context=context)
 
@@ -190,5 +193,24 @@ def team_permission(request, id):
 def team_add_member(request, id):
     team = get_object_or_404(Team, pk=id)
 
-    context = {'team':team}
-    return render(request, 'teams/team_add_member.html', context=context)
+    if request.method == 'POST':
+        form = AddNewMember(request.POST or None, team=team)
+        if form.is_valid():
+            member = form.cleaned_data['members']
+            team.members.add(member)
+            return redirect('team_members', id=team.id)
+    else:
+        form = AddNewMember(team=team)
+        form.team = team 
+
+    context = {'team':team, 'form':form}
+    return render(request, 'teams/team_members.html', context=context)
+
+@login_required
+def remove_member(request, team_id, member_id):
+    team = get_object_or_404(Team, id = team_id)
+    member = get_object_or_404(User, id=member_id)
+
+    team.members.remove(member)
+
+    return redirect('team_members', id=team.id)

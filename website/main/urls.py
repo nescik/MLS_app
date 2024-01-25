@@ -22,7 +22,8 @@ urlpatterns = [
     path('team/<int:id>/files', views.team_files, name='team_files'),
     path('team/<int:id>/add_file', views.team_add_file, name='team_add_file'),
     path('team/<int:id>/permission', views.team_permission, name='team_permission'),
-    path('team/<int:id>/add_member', views.team_add_member, name='team_add_member'),
-    path('download/<int:id>', views.download_file, name='download_file')
+    path('team/<int:id>/members', views.team_add_member, name='team_members'),
+    path('download/<int:id>', views.download_file, name='download_file'),
+    path('team/<int:team_id>/remove_member/<int:member_id>', views.remove_member, name='remove_member')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

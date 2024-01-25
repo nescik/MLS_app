@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.deconstruct import deconstructible
@@ -68,15 +69,24 @@ class Team(models.Model):
     def __str__(self):
         return self.name
     
+
+
+
+
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
+
+
+def upload_to_team_folder(instance, filename):
+    team_folder = f"team_{instance.team.name}"
+    return os.path.join('team_files', team_folder, filename)
 
 
 class File(models.Model):
     description = models.CharField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='team_files/', validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
+    file = models.FileField(upload_to=upload_to_team_folder, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
     upload_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

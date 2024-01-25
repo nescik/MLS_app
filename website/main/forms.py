@@ -105,3 +105,19 @@ class AddFileForm(ModelForm):
         
         self.fields['file'].label = 'Plik'
         self.fields['description'].label = 'Opis'
+
+class AddNewMember(forms.Form):
+    members = forms.ModelChoiceField(queryset=User.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        team = kwargs.pop('team', None)
+        super().__init__(*args, **kwargs)
+        self.fields['members'].label = 'Użytkownicy'
+
+        if team:
+            existing_members = team.members.all()
+            users_not_in_team = User.objects.exclude(id__in=[user.id for user in existing_members])
+            self.fields['members'].queryset = users_not_in_team
+
+            if not users_not_in_team:
+                self.fields['members'].choices = [('', ('Brak użytkowników do dodania'))]
