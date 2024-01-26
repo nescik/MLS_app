@@ -10,6 +10,10 @@ from django.utils import timezone
 from django.core.validators import FileExtensionValidator
 from django.http import HttpResponse
 from mimetypes import guess_type
+from gdstorage.storage import GoogleDriveStorage
+from cryptography.fernet import Fernet
+from django.conf import settings
+from io import BytesIO
 
 @deconstructible
 class UniqueFileName:
@@ -70,35 +74,54 @@ class Team(models.Model):
         return self.name
     
 
-
-
-
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
 
 
+
+
 def upload_to_team_folder(instance, filename):
-    team_folder = f"team_{instance.team.name}"
-    return os.path.join('team_files', team_folder, filename)
+    return f'team_files/team_{instance.team.name}/{filename}'
+
+
+gd_storage = GoogleDriveStorage()
+cipher_suite = Fernet(key=settings.ENCRYPT_KEY)
+
+def encrypt_file(file_content):
+    return cipher_suite.encrypt(file_content)
+
+def decrypt_file(encrypt_content):
+    return cipher_suite.decrypt(encrypt_content)
+
 
 
 class File(models.Model):
     description = models.CharField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=upload_to_team_folder, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
+    file = models.FileField(upload_to=upload_to_team_folder, storage=gd_storage, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
     upload_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.description
+        return self.file.name
     
     def get_file_name(self):
         return os.path.basename(self.file.name)
     
     def download(self, request):
-        file_content = self.file.read()
+        encrypt_content = self.file.read()
+        decrypted_content = decrypt_file(encrypt_content)
         mime_type, _ = guess_type(self.file.name)
-        response = HttpResponse(file_content, content_type=mime_type)
+        response = HttpResponse(decrypted_content, content_type=mime_type)
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(self.file.name)}"'
 
         return response
+
+    def save(self, *args, **kwargs):
+
+        file_content = self.file.read()
+        encrypted_content = encrypt_file(file_content)
+        encrypted_file = BytesIO(encrypted_content)
+
+        self.file.save(self.file.name, encrypted_file, save=False)
+        super().save(*args, **kwargs)

@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'crispy_forms',
     'crispy_bootstrap5',
-    'django_countries'
+    'django_countries',
+    'gdstorage'
 ]
+
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'C:\\Users\\eperz\\Downloads\\djangomls-9e2d9e886c09.json'
+GOOGLE_DRIVE_STORAGE_DEBUG = True
+ENCRYPT_KEY = b'WCO03voL-Ex51Y-8sS1ymlbjGXApIjHfsbgZAj9rWQk='
 
 
 MIDDLEWARE = [
