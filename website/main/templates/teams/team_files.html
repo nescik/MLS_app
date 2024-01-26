@@ -32,7 +32,9 @@
         <td>{{file.description}}</td>
         <td>{{file.upload_date|date:"d.m.Y"}}, {{file.upload_date|time:"H:i"}}</td>
         <td>{{file.author}}</td>
-        <td><a href="{% url 'download_file' file.id %}" class="d-flex justify-content-center text-white" target="_blank"><i class="fa-solid fa-download"></i></a></td>
+        <td>
+          <a href="{% url 'download_file' file.id %}" class="d-flex justify-content-center text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+        </td>
       </tr>
     {% endfor %}
   </tbody>

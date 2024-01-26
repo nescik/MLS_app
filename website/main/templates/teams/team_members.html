@@ -35,21 +35,22 @@
             </thead>
             <tbody>
                 {% for member in team.members.all %}
-                <tr>
+                  {% if member != team.founder %}
+                  <tr>
                     <td>
                         {% if member.get_full_name %}
                             {{ member.get_full_name }} 
                         {% else %}
                             {{ member.username }}
                         {% endif %}
-                    
                     </td>
                     <td>
                         <a class="delete-confirm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
                         data-desc=" Usunąć użytkownika {{member.get_full_name}}?"
                         data-url="{% url 'remove_member' team.id member.id %}" ><i class="fa-solid fa-trash"></i></a>
                     </td>
-                </tr>   
+                  </tr>   
+                  {% endif %}
                 {% endfor %}
             </tbody>
           </table>
