@@ -13,7 +13,7 @@ from mimetypes import guess_type
 from gdstorage.storage import GoogleDriveStorage
 from cryptography.fernet import Fernet
 from django.conf import settings
-from io import BytesIO
+from django.core.files.base import ContentFile
 
 @deconstructible
 class UniqueFileName:
@@ -64,11 +64,28 @@ class Profile(models.Model):
     def is_profile_complete(self):
         return bool(self.user.first_name and self.user.last_name)
 
+class Key(models.Model):
+    value = models.CharField(max_length=44)
         
 class Team(models.Model):
     name = models.CharField(max_length=255)
     founder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_founder')
     members = models.ManyToManyField(User, related_name='team_member', blank=True)
+    key = models.OneToOneField(Key, on_delete=models.SET_NULL, null=True, blank=True, related_name='team_key', unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key_id:
+            new_key = Fernet.generate_key()
+
+            master_key = settings.ENCRYPT_KEY
+            fernet = Fernet(master_key)
+            encrypted_key = fernet.encrypt(new_key)
+
+            key_instance = Key(value=encrypted_key.decode())
+            key_instance.save()
+            self.key = key_instance
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -76,8 +93,6 @@ class Team(models.Model):
 
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
-
-
 
 
 def upload_to_team_folder(instance, filename):
@@ -108,20 +123,39 @@ class File(models.Model):
     def get_file_name(self):
         return os.path.basename(self.file.name)
     
+
+    def _get_team_key(self):
+        master_key = settings.ENCRYPT_KEY
+        fernet = Fernet(master_key)
+
+        encrypted_team_key = self.team.key.value.encode()
+        decrypted_team_key = fernet.decrypt(encrypted_team_key)
+        fernet_team = Fernet(decrypted_team_key)
+
+        return fernet_team
+
+
     def download(self, request):
-        encrypt_content = self.file.read()
-        decrypted_content = decrypt_file(encrypt_content)
-        mime_type, _ = guess_type(self.file.name)
-        response = HttpResponse(decrypted_content, content_type=mime_type)
-        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(self.file.name)}"'
+
+        if self.team.key:
+            
+            fernet_team = self._get_team_key()
+            
+            encrypt_content = self.file.read()
+            decrypted_content = fernet_team.decrypt(encrypt_content)
+            mime_type, _ = guess_type(self.file.name)
+            response = HttpResponse(decrypted_content, content_type=mime_type)
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(self.file.name)}"'
 
         return response
 
     def save(self, *args, **kwargs):
 
-        file_content = self.file.read()
-        encrypted_content = encrypt_file(file_content)
-        encrypted_file = BytesIO(encrypted_content)
+        if self.team.key:
+            fernet_team = self._get_team_key()
 
-        self.file.save(self.file.name, encrypted_file, save=False)
+            file_content = self.file.read()
+            encrypted_content = fernet_team.encrypt(file_content)
+            self.file.save(self.file.name, ContentFile(encrypted_content), save=False)
+
         super().save(*args, **kwargs)
