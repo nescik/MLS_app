@@ -47,20 +47,25 @@
         </div>
 
         <div class="row p-5">
+            
+            {% if teams %}
             <h2 class="mb-5">Twoje zespoły</h2>
-            {% for team in teams %}
-                {% if user in team.members.all %}
-                <div class="col-3 mb-4">
-                    <a href="{% url 'team_files' team.id %}" class="team-link">
-                        <div class="custom-border align-items-center d-flex justify-content-center ">
-                            <h5>
-                                {{ team.name }}
-                            </h5>
+                {% for team in teams %}
+                    {% if user in team.members.all %}
+                        <div class="col-3 mb-4">
+                            <a href="{% url 'team_files' team.id %}" class="team-link">
+                                <div class="custom-border align-items-center d-flex justify-content-center ">
+                                    <h5>
+                                        {{ team.name }}
+                                    </h5>
+                                </div>
+                            </a>
                         </div>
-                    </a>
-                </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+            <h2 class="mb-5">Brak zespołów</h2>
+            {% endif %}
         </div>
     </div>
 

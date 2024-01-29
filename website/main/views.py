@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 
 @login_required
 def home(request):
@@ -51,6 +51,7 @@ def sign_up(request):
 
 def my_login(request):
     form = LoginForm()
+    failed_attempts_key = 'failed_attempts'
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -59,14 +60,36 @@ def my_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)
-
-            profile = user.profile
-            if not profile.is_profile_complete():
-                messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
-                return redirect('account-general')
+            if user.is_active:
+                login(request, user)
+                
+                profile = user.profile
+                if not profile.is_profile_complete():
+                    messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
+                    return redirect('account-general')
+                else:
+                    request.session[failed_attempts_key] = 0
+                    return redirect('home')
             else:
-                return redirect('home')
+                messages.warning(request, 'Konto zablokowane! W celu odblokowania skontaktuj sie z administratorem')
+        else:
+            user_session_key = f'{failed_attempts_key}_{username}'
+
+            failed_attempts = request.session.get(user_session_key, 0)
+            failed_attempts += 1
+            request.session[user_session_key] = failed_attempts
+
+            
+            if failed_attempts > 5:
+                user_to_lock = get_object_or_404(User, username=username)
+                user_to_lock.is_active = False
+                user_to_lock.save()
+
+                request.session[f'locked_account_{username}'] = True
+                messages.error(request, 'Przekroczono liczbę nieudanych prób logowania. Konto zostało zablokowane! W celu odblokowania skontaktuj sie z administratorem')
+            else:
+                messages.warning(request, f'Nieudane logowanie! Po przekroczeniu 5 prób konto zostanie zablokowane. Próba {failed_attempts}')
+                
             
     context = {"form":form}
 

@@ -20,6 +20,13 @@
                 {{form.password|as_crispy_field}}
                 <button type="submit" class="btn btn-outline-light border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative btn-submit">Zaloguj się <i class="fa-solid fa-right-to-bracket border border-2 border-light rounded-circle position-absolute"></i></button>
               </form>
+              {% if messages %}
+                  {% for message in messages  %}
+                      <div class="alert alert-warning  m-3" role="alert">
+                          {{message}}
+                      </div>
+                  {% endfor %}
+              {% endif %}
             </div>
             <a href="{% url 'sign-up' %}" class="btn btn-outline-light border-2 rounded-pill btn_link" role="button">Zarejestruj się</a>
             <a href="{% url 'home' %}" class="btn btn-outline-light border-2 rounded-pill btn_back_home" role="button">Strona główna</a>

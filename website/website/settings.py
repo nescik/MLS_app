@@ -49,6 +49,7 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'C:\\Users\\eperz\\Downloads\\djangomls-9e2
 GOOGLE_DRIVE_STORAGE_DEBUG = True
 ENCRYPT_KEY = b'WCO03voL-Ex51Y-8sS1ymlbjGXApIjHfsbgZAj9rWQk='
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
