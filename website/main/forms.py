@@ -15,7 +15,24 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ['username','email', 'password1', 'password2']
     
-        
+    error_messages = {
+        'password_mismatch': 'Podane hasła nie są identyczne!',
+    }
+
+
+    def clean_email(self): 
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Podany email juz istniej!')
+        return email
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('Podana nazwa użytkownika już istnieje!')
+        return username
+
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
