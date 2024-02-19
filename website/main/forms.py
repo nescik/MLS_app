@@ -138,7 +138,7 @@ class AddNewMember(forms.Form):
 
         if team:
             existing_members = team.members.all()
-            users_not_in_team = User.objects.exclude(id__in=[user.id for user in existing_members])
+            users_not_in_team = User.objects.filter(is_superuser=False).exclude(id__in=[user.id for user in existing_members])
             self.fields['members'].queryset = users_not_in_team
 
             if not users_not_in_team:

@@ -99,9 +99,10 @@ form input:focus, form select:focus{
 .fa-trash{
     color: white !important;
     padding: 6px;
-    
+    cursor: pointer;
 }
 
 .fa-trash:hover{
     background-color: #373737;
 }
+
