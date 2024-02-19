@@ -18,11 +18,13 @@
 <table class="table table-striped table-dark ">
   <thead>
     <tr>
-      <th class="col-3" scope="col">Nazwa</th>
-      <th class="col-4" scope="col">Opis</th>
+      <th class="col-2" scope="col">Nazwa</th>
+      <th class="col-3" scope="col">Opis</th>
       <th class="col-2" scope="col">Data dodania</th>
-      <th class="col-2" scope="col">Dodane przez</th>
-      <th class="col-1 text-center " scope="col">Pobierz</th>
+      <th class="col-1" scope="col">Dodał</th>
+      <th class="col-1" scope="col">Wersja</th>
+      <th class="col-2" scope="col">Edytowane przez</th>
+      <th class="col-1 text-center" scope="col">Akcja</th>
     </tr>
   </thead>
   <tbody>
@@ -32,12 +34,25 @@
         <td>{{file.description}}</td>
         <td>{{file.upload_date|date:"d.m.Y"}}, {{file.upload_date|time:"H:i"}}</td>
         <td>{{file.author}}</td>
+        <td>{{file.version}}</td>
         <td>
-          <a href="{% url 'download_file' file.id %}" class="d-flex justify-content-center text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+          {% if file.last_editor %}
+            {{ file.last_editor.username }}
+          {% else %}
+              Brak
+          {% endif %}
+        </td>
+        <td class="d-flex justify-content-around  ">
+          <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
         </td>
       </tr>
     {% endfor %}
   </tbody>
 </table>
+
+
+
+
 
 {% endblock %}

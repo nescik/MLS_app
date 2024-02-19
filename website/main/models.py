@@ -1,3 +1,4 @@
+import re
 from typing import Any
 from django.db import models
 from django.contrib.auth.models import User
@@ -96,19 +97,26 @@ class CustomFileExtensionValidator(FileExtensionValidator):
 
 
 def upload_to_team_folder(instance, filename):
-    return f'team_files/team_{instance.team.name}/{filename}'
+    team_name = instance.team.name
+    base_name, ext = os.path.splitext(filename)
+
+    # Sprawdź, czy plik ma już suffix v_
+    existing_suffix = re.search(r'_v(\d+)', base_name)
+    
+    # Jeżeli plik ma już suffix v_, to zaktualizuj go, w przeciwnym razie dodaj nowy suffix
+    if existing_suffix:
+        current_version = int(existing_suffix.group(1))
+        new_version = instance.version
+        if new_version > current_version:
+            base_name = re.sub(r'_v(\d+)', f'_v{new_version}', base_name)
+    else:
+        version_suffix = f"_v{instance.version}" if instance.version > 1 else ""
+        base_name = f'{base_name}{version_suffix}'
+
+    return f'team_files/team_{team_name}/{base_name}{ext}'
 
 
 gd_storage = GoogleDriveStorage()
-cipher_suite = Fernet(key=settings.ENCRYPT_KEY)
-
-def encrypt_file(file_content):
-    return cipher_suite.encrypt(file_content)
-
-def decrypt_file(encrypt_content):
-    return cipher_suite.decrypt(encrypt_content)
-
-
 
 class File(models.Model):
     description = models.CharField(max_length=255)
@@ -116,6 +124,8 @@ class File(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     file = models.FileField(upload_to=upload_to_team_folder, storage=gd_storage, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
     upload_date = models.DateTimeField(default=timezone.now)
+    version = models.SmallIntegerField(default=1)
+    last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_edited_files')
 
     def __str__(self):
         return self.file.name
@@ -124,7 +134,7 @@ class File(models.Model):
         return os.path.basename(self.file.name)
     
 
-    def _get_team_key(self):
+    def get_team_key(self):
         master_key = settings.ENCRYPT_KEY
         fernet = Fernet(master_key)
 
@@ -133,13 +143,14 @@ class File(models.Model):
         fernet_team = Fernet(decrypted_team_key)
 
         return fernet_team
+    
 
 
     def download(self, request):
 
         if self.team.key:
             
-            fernet_team = self._get_team_key()
+            fernet_team = self.get_team_key()
             
             encrypt_content = self.file.read()
             decrypted_content = fernet_team.decrypt(encrypt_content)
@@ -152,7 +163,7 @@ class File(models.Model):
     def save(self, *args, **kwargs):
 
         if self.team.key:
-            fernet_team = self._get_team_key()
+            fernet_team = self.get_team_key()
 
             file_content = self.file.read()
             encrypted_content = fernet_team.encrypt(file_content)

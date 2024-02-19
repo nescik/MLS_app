@@ -1,0 +1,27 @@
+{% extends "teams/team_detail.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+   Edytuj plik
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block team-content %}
+
+<div class="row mt-5">
+    <div class="col-5">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form|crispy}}
+            <button type="submit" class="btn btn-outline-light border-2 rounded-pill">Zapisz</button>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

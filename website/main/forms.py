@@ -123,6 +123,11 @@ class AddFileForm(ModelForm):
         self.fields['file'].label = 'Plik'
         self.fields['description'].label = 'Opis'
 
+class EditFileForm(ModelForm):
+    class Meta:
+        model = File
+        fields = ['file', 'description']
+
 class AddNewMember(forms.Form):
     members = forms.ModelChoiceField(queryset=User.objects.all())
 

@@ -1,5 +1,6 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
@@ -7,7 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 
 @login_required
 def home(request):
@@ -174,11 +175,33 @@ def team_detail(request, id):
 @login_required
 def team_files(request, id):
     team = get_object_or_404(Team, pk=id)
-
     files = File.objects.filter(team=team)
 
-    context = {'team':team,  'files':files}
+    context = {'team': team, 'files': files}
     return render(request, 'teams/team_files.html', context=context)
+
+@login_required
+def edit_file(request, team_id, file_id):
+    team = get_object_or_404(Team, pk=team_id)
+    file = get_object_or_404(File, pk=file_id)
+    form = EditFileForm(request.POST or None, instance=file)
+   
+    if request.method == 'POST':
+        form = EditFileForm(request.POST, request.FILES, instance=file)
+        if form.is_valid():
+            form.save(commit=False)
+            
+            file.last_editor = request.user
+            file.version += 1
+            file.save()
+
+            return redirect('team_files', id=team.id)
+    else:
+        form = EditFileForm( instance=file)
+
+
+    context = {'team':team, 'form':form}    
+    return render(request, 'teams/edit_file.html', context=context)
 
 @login_required
 def download_file(request,id):
@@ -204,6 +227,8 @@ def team_add_file(request, id):
 
     context = {'team':team, 'form':form, 'user_files':user_files}
     return render(request, 'teams/team_add_file.html', context=context)
+
+
 
 @login_required
 def team_permission(request, id):
