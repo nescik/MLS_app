@@ -44,12 +44,38 @@
         </td>
         <td class="d-flex justify-content-around  ">
           <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          {% if user == file.author %}
+          <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="fa-solid fa-trash"></i></a>
+
+          <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Usuń...</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="idDeleteModalBody">
+                  Plik <strong>"{{file.get_file_name}}"</strong> zostanie usunięty!
+                </div>
+                <div class="modal-footer">
+                  <form method="POST">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <button type="submit" class="btn btn-danger " value="{{file.id}}" name="file-id">Usuń</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% endif %}
           <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
         </td>
       </tr>
     {% endfor %}
   </tbody>
 </table>
+
 
 
 

@@ -176,6 +176,13 @@ def team_detail(request, id):
 def team_files(request, id):
     team = get_object_or_404(Team, pk=id)
     files = File.objects.filter(team=team)
+    
+    if request.method == 'POST':
+        file_id = request.POST.get('file-id')
+        file = File.objects.filter(id=file_id).first()
+        if file and file.author == request.user:
+            file.delete()
+            redirect('team_files', id=team.id)
 
     context = {'team': team, 'files': files}
     return render(request, 'teams/team_files.html', context=context)

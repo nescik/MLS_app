@@ -96,13 +96,19 @@ form input:focus, form select:focus{
     margin-left: 50px;
 }
 
-.fa-trash{
+.trash-icon{
     color: white !important;
     padding: 6px;
     cursor: pointer;
 }
 
-.fa-trash:hover{
+.trash-icon:hover{
     background-color: #373737;
 }
 
+.delete-btn{
+    background-color: transparent;
+    border: none;
+    text-decoration: none;
+    color: white;
+}

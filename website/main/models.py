@@ -90,7 +90,12 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+    class Meta:
+        permissions = [
+            ("add_new_member", "Can add new team memeber"),
+            ("delete_member", "Can delete team memeber")
+        ]    
 
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
