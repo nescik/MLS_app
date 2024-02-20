@@ -1,7 +1,7 @@
 import re
 from typing import Any
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils.deconstruct import deconstructible
 import os
 import uuid
@@ -67,11 +67,14 @@ class Profile(models.Model):
 
 class Key(models.Model):
     value = models.CharField(max_length=44)
+
+
+
         
 class Team(models.Model):
     name = models.CharField(max_length=255)
     founder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_founder')
-    members = models.ManyToManyField(User, related_name='team_member', blank=True)
+    members = models.ManyToManyField(User, through='TeamMembership', related_name='team_member', blank=True)
     key = models.OneToOneField(Key, on_delete=models.SET_NULL, null=True, blank=True, related_name='team_key', unique=True)
 
     def save(self, *args, **kwargs):
@@ -90,12 +93,26 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_members(self):
+        return TeamMembership.objects.filter(team=self)
 
     class Meta:
         permissions = [
             ("add_new_member", "Can add new team memeber"),
-            ("delete_member", "Can delete team memeber")
+            ("delete_member", "Can delete team memeber"),
+            ("manage_perms", "Can manage all permission in team")
         ]    
+
+
+class TeamMembership(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    groups = models.ManyToManyField(Group)
+
+    def __str__(self):
+        return f'{self.user.get_full_name()}'
+
 
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
@@ -124,6 +141,24 @@ def upload_to_team_folder(instance, filename):
 gd_storage = GoogleDriveStorage()
 
 class File(models.Model):
+
+    PRIVACY_CHOICES = [
+        ('public', 'Publiczny'),
+        ('confidencial', 'Poufny'),
+        ('secret', 'Tajny')
+    ]
+
+    class Meta:
+        permissions = [
+            ('view_confidencial', 'Can view confidencial files'),
+            ('edit_confidencial', 'Can edit confidencial files'),
+            ('download_confidencial', 'Can download confidencial files'),
+            ('view_secret', 'Can view secret files'),
+            ('edit_secret', 'Can edit secret files'),
+            ('download_secret', 'Can download secret files'),
+        ]   
+
+
     description = models.CharField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -131,6 +166,7 @@ class File(models.Model):
     upload_date = models.DateTimeField(default=timezone.now)
     version = models.SmallIntegerField(default=1)
     last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_edited_files')
+    privacy_level = models.CharField(max_length=12, choices=PRIVACY_CHOICES, default='public')
 
     def __str__(self):
         return self.file.name

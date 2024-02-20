@@ -1,14 +1,14 @@
 import os
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .models import Team, File
+from .models import Team, File, TeamMembership
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, JsonResponse
+
 
 @login_required
 def home(request):
@@ -23,9 +23,11 @@ def home(request):
             team.founder = founder
             team.save() 
 
+            TeamMembership.objects.create(user=founder, team=team)
+
             members = form.cleaned_data['members']
-            team.members.set(members)
-            team.members.add(founder)
+            for member in members:
+                TeamMembership.objects.create(user=member, team=team)
             
             return redirect('home')
     else:
@@ -66,7 +68,6 @@ def my_login(request):
                 
                 profile = user.profile
                 if not profile.is_profile_complete():
-                    messages.warning(request, 'Prosze uzupełnić dane (imię oraz nazwisko)!')
                     return redirect('account-general')
                 else:
                     request.session[failed_attempts_key] = 0
@@ -160,23 +161,23 @@ def account_info(request):
 def account_social(request):
     return render (request, 'user_profile/account_social.html')
 
-@login_required
-def team_detail(request, id):
-
+def get_team_and_members(id):
     team = get_object_or_404(Team, pk=id)
+    members = team.get_members()
+
+    return team, members
+
+
+
+@login_required
+def team_files(request, id):
+    team, members = get_team_and_members(id)
+    files = File.objects.filter(team=team)
+    
 
     if request.user.is_authenticated:
         user = request.user
 
-    context = {'team':team, 'user':user}
-
-    return render(request, 'teams/team_files.html', context=context)
-
-@login_required
-def team_files(request, id):
-    team = get_object_or_404(Team, pk=id)
-    files = File.objects.filter(team=team)
-    
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
         file = File.objects.filter(id=file_id).first()
@@ -184,15 +185,18 @@ def team_files(request, id):
             file.delete()
             redirect('team_files', id=team.id)
 
-    context = {'team': team, 'files': files}
+    context = {'team': team, 'files': files, 'user':user, 'members': members, 'user':user}
     return render(request, 'teams/team_files.html', context=context)
 
 @login_required
 def edit_file(request, team_id, file_id):
-    team = get_object_or_404(Team, pk=team_id)
+    team, members = get_team_and_members(team_id)
     file = get_object_or_404(File, pk=file_id)
     form = EditFileForm(request.POST or None, instance=file)
    
+    if request.user.is_authenticated:
+        user = request.user
+
     if request.method == 'POST':
         form = EditFileForm(request.POST, request.FILES, instance=file)
         if form.is_valid():
@@ -207,7 +211,7 @@ def edit_file(request, team_id, file_id):
         form = EditFileForm( instance=file)
 
 
-    context = {'team':team, 'form':form}    
+    context = {'team':team, 'form':form, 'members': members, 'user':user}    
     return render(request, 'teams/edit_file.html', context=context)
 
 @login_required
@@ -217,9 +221,12 @@ def download_file(request,id):
 
 @login_required
 def team_add_file(request, id):
-    team = get_object_or_404(Team, pk=id)
+    team, members = get_team_and_members(id)
     user = request.user
     user_files = File.objects.filter(team=team, author=user)
+
+    if request.user.is_authenticated:
+        user = request.user
 
     if request.method == 'POST':
         form = AddFileForm(request.POST or None, request.FILES or None)
@@ -232,33 +239,65 @@ def team_add_file(request, id):
     else:
         form = AddFileForm()
 
-    context = {'team':team, 'form':form, 'user_files':user_files}
+    context = {'team':team, 'form':form, 'user_files':user_files, 'members': members, 'user':user}
     return render(request, 'teams/team_add_file.html', context=context)
 
 
 
 @login_required
 def team_permission(request, id):
-    team = get_object_or_404(Team, pk=id)
+    team, members = get_team_and_members(id)
 
-    context = {'team':team}
+    if request.user.is_authenticated:
+        user = request.user
+
+    users = User.objects.filter(is_superuser=False).all()
+   
+    
+    if request.method == 'POST':
+        forms = [EditUserPermission(team, user, request.POST, prefix=str(user.id)) for user in users]
+        for form in forms:
+            if form.is_valid():
+                user_id = form.prefix
+                user = get_object_or_404(User, pk=user_id)
+                group = form.cleaned_data.get('groups')
+
+                team_membership = TeamMembership.objects.filter(user=user, team=team).first()
+                if team_membership:
+                    team_membership.groups.set([group]) if group else team_membership.groups.clear()
+                    team_membership.save()
+                    messages.success(request, f'Grupa użytkownika {user.get_full_name()} została pomyślnie zmieniona!')
+   
+
+                return redirect('team_permission', id=team.id)
+    else:
+        forms = [EditUserPermission(team, user, prefix=str(user.id)) for user in users]
+            
+
+    context = {'team':team, 'forms':forms, 'members': members, 'user':user}
     return render(request, 'teams/team_permission.html', context=context)
 
 @login_required
 def team_add_member(request, id):
-    team = get_object_or_404(Team, pk=id)
+    team, members = get_team_and_members(id)
+
+    if request.user.is_authenticated:
+        user = request.user
 
     if request.method == 'POST':
         form = AddNewMember(request.POST or None, team=team)
         if form.is_valid():
             member = form.cleaned_data['members']
-            team.members.add(member)
+            group = form.cleaned_data['groups']
+            
+            team_membership = TeamMembership.objects.create(user = member, team=team)
+            team_membership.groups.add(group)            
             return redirect('team_members', id=team.id)
     else:
         form = AddNewMember(team=team)
         form.team = team 
 
-    context = {'team':team, 'form':form}
+    context = {'team':team, 'form':form, 'members': members, 'user':user}
     return render(request, 'teams/team_members.html', context=context)
 
 @login_required

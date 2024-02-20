@@ -14,5 +14,36 @@
 {% block team-content %}
 
 <h1>Uprawnienia</h1>
+    <div class="container div-perms">
+        <div class="row">
+            {% if messages %}
+                    {% for message in messages  %}
+                        <div class="alert alert-success  m-3" role="alert">
+                            {{message}}
+                        </div>
+                    {% endfor %}
+            {% endif %}
+        </div>
+        
+        {% for user_form in forms %}
+        <div class="row p-3">
+            <div class="col-3">
+                <h2>{{ user_form.fields.full_name.initial }}</h2>
+            </div>
+            <div class="col-3 mb-4">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ user_form|crispy }}
+                    <button type="submit" class="btn btn-outline-light border-2 rounded-pill">Zapisz</button>
+                </form>
+            </div>
+            <hr>
+        </div>
+       
+        {% endfor %}
+    </div>
+    
+    
+   
 
 {% endblock %}

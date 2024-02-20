@@ -213,3 +213,7 @@
     box-sizing: border-box;  
     border-bottom-left-radius: 20px;      
 }
+
+.alert-success{
+    background-color: rgb(157, 255, 157) !important;
+}

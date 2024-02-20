@@ -43,16 +43,12 @@
         </div>
         <div class="col-2 members-col" >
             <h5 class="text-center ">Członkowie</h5>
-          {% for member in team.members.all %}
+          {% for member in members %}
             <div class="row d-flex align-items-center ">
                 <div class="member-name d-flex justify-content-between ">
                     <div>
-                      <img src="{{ member.profile.image.url }}" class="rounded-circle img-profile">
-                      {% if member.get_full_name %}
-                          {{ member.get_full_name }}
-                      {% else %}
-                          {{ member.username }}
-                      {% endif %}
+                      <img src="{{ member.user.profile.image.url }}" class="rounded-circle img-profile">
+                      {{member}}
                     </div>
                 </div>
             </div>
