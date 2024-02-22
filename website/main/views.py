@@ -1,4 +1,5 @@
 import os
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission
 from django.contrib.auth import authenticate, login
@@ -217,7 +218,14 @@ def edit_file(request, team_id, file_id):
 @login_required
 def download_file(request,id):
     file_instance = get_object_or_404(File, pk=id)
-    return file_instance.download(request)
+
+    privacy_level = file_instance.privacy_level
+    user = request.user
+
+    if privacy_level == 'public' or (privacy_level == 'confidencial' and user.has_perm('download_confidencial', file_instance)) or (privacy_level == 'secret' and user.has_perm('download_secret', file_instance)):
+        return file_instance.download(request)
+
+    raise Http404("Nie masz uprawnień do pobrania tego pliku.")
 
 @login_required
 def team_add_file(request, id):
