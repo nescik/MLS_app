@@ -114,12 +114,15 @@ class CreateTeamForm(ModelForm):
         fields = ['name', 'members']
     
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
         self.fields['name'].label = 'Nazwa'
         self.fields['members'].label = 'Członkowie'
+        self.fields['members'].label_from_instance = lambda obj: f"{obj.get_full_name()}"
 
-
+        if user:
+            self.fields['members'].queryset = User.objects.filter(is_superuser=False).exclude(id=user.id)
 
 class AddFileForm(ModelForm):
     class Meta:
@@ -155,7 +158,8 @@ class AddNewMember(forms.Form):
 
             if not users_not_in_team:
                 self.fields['members'].choices = [('', ('Brak użytkowników do dodania'))]
-    
+
+        self.fields['members'].label_from_instance = lambda obj: f"{obj.get_full_name()}" 
 
 
 class EditUserPermission(ModelForm):
@@ -167,6 +171,7 @@ class EditUserPermission(ModelForm):
     
         
     full_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    image = forms.ImageField(widget=forms.HiddenInput(), required=False)
     
     def __init__(self, team, user, *args, **kwargs):
         super(EditUserPermission, self).__init__(*args, **kwargs)
@@ -174,3 +179,4 @@ class EditUserPermission(ModelForm):
         self.fields['groups'].initial = team_membership.groups.first().id if team_membership and team_membership.groups.exists() else None
         self.fields['groups'].label = 'Grupa'
         self.fields['full_name'].initial = user.get_full_name
+        self.fields['image'].initial = user.profile.image.url

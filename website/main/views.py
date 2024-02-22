@@ -16,7 +16,7 @@ def home(request):
     user = request.user
 
     if request.method == 'POST':
-        form = CreateTeamForm(request.POST)
+        form = CreateTeamForm(request.POST, user=user)
         if form.is_valid():
             founder = request.user
             team = form.save(commit=False)
@@ -31,7 +31,7 @@ def home(request):
             
             return redirect('home')
     else:
-        form = CreateTeamForm()
+        form = CreateTeamForm(user=user)
 
     context = {'teams':teams, 'form':form, 'user':user}
     return render(request, 'main/home.html', context=context)

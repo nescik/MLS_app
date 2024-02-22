@@ -27,6 +27,8 @@
     padding: 20px;
     overflow:auto;
     margin-top: 20px !important; 
+    max-height: 670px !important;
+    overflow-y: auto ;
 }
 
 .members-col::-webkit-scrollbar{
@@ -114,5 +116,19 @@ form input:focus, form select:focus{
 }
 
 .div-perms{
+    
+    height: 640px;
     overflow-y: auto;
+}
+
+.img-profile-perms{
+    width: 120px ;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.user-name-perms{
+    margin-left: 13px;
+    font-size: 24px;
 }

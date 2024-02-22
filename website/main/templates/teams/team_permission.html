@@ -14,7 +14,7 @@
 {% block team-content %}
 
 <h1>Uprawnienia</h1>
-    <div class="container div-perms">
+    <div class="container-fluid div-perms">
         <div class="row">
             {% if messages %}
                     {% for message in messages  %}
@@ -28,7 +28,8 @@
         {% for user_form in forms %}
         <div class="row p-3">
             <div class="col-3">
-                <h2>{{ user_form.fields.full_name.initial }}</h2>
+                <img src="{{ user_form.fields.image.initial }}" class="img-profile-perms">
+                <span  class="user-name-perms">{{ user_form.fields.full_name.initial }}</span>
             </div>
             <div class="col-3 mb-4">
                 <form method="post">

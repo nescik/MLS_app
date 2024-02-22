@@ -36,7 +36,7 @@ class Profile(models.Model):
     website = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self) :
-        return f'{self.user.username} Profile'
+        return f'{self.user.get_full_name()}'
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
