@@ -8,7 +8,9 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File, TeamMembership
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from .permission_tools import check_perms
+
 
 
 @login_required
@@ -179,6 +181,10 @@ def team_files(request, id):
     if request.user.is_authenticated:
         user = request.user
 
+        
+
+        
+
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
         file = File.objects.filter(id=file_id).first()
@@ -221,8 +227,13 @@ def download_file(request,id):
 
     privacy_level = file_instance.privacy_level
     user = request.user
-
-    if privacy_level == 'public' or (privacy_level == 'confidencial' and user.has_perm('download_confidencial', file_instance)) or (privacy_level == 'secret' and user.has_perm('download_secret', file_instance)):
+    team = file_instance.team
+    
+    if (
+        (privacy_level == 'public' and check_perms(user, team, 'download_file')) or
+        (privacy_level == 'confidencial' and check_perms(user, team, 'download_confidencial')) or
+        (privacy_level == 'secret' and check_perms(user, team, 'download_secret'))
+    ):
         return file_instance.download(request)
 
     raise Http404("Nie masz uprawnień do pobrania tego pliku.")
@@ -259,7 +270,7 @@ def team_permission(request, id):
     if request.user.is_authenticated:
         user = request.user
 
-    users = User.objects.filter(is_superuser=False).all()
+    users = User.objects.filter(is_superuser=False, teammembership__team=team).distinct()
    
     
     if request.method == 'POST':
@@ -283,7 +294,11 @@ def team_permission(request, id):
             
 
     context = {'team':team, 'forms':forms, 'members': members, 'user':user}
-    return render(request, 'teams/team_permission.html', context=context)
+
+    if check_perms(user, team,'manage_perms'):
+        return render(request, 'teams/team_permission.html', context=context)
+    else:
+        raise Http404("Nie masz dostępu do tej strony!!!") 
 
 @login_required
 def team_add_member(request, id):

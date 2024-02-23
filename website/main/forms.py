@@ -171,7 +171,7 @@ class EditUserPermission(ModelForm):
     
         
     full_name = forms.CharField(widget=forms.HiddenInput(), required=False)
-    image = forms.ImageField(widget=forms.HiddenInput(), required=False)
+    image = forms.CharField(widget=forms.HiddenInput())
     
     def __init__(self, team, user, *args, **kwargs):
         super(EditUserPermission, self).__init__(*args, **kwargs)

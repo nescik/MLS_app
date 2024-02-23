@@ -150,6 +150,7 @@ class File(models.Model):
 
     class Meta:
         permissions = [
+            ('download_file', 'Can download file'),
             ('view_confidencial', 'Can view confidencial files'),
             ('edit_confidencial', 'Can edit confidencial files'),
             ('download_confidencial', 'Can download confidencial files'),
