@@ -111,7 +111,7 @@ class TeamMembership(models.Model):
     groups = models.ManyToManyField(Group)
 
     def __str__(self):
-        return f'{self.user.get_full_name()}'
+        return f'{self.team}--{self.user.get_full_name()}'
 
 
 class CustomFileExtensionValidator(FileExtensionValidator):

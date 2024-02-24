@@ -11,5 +11,3 @@ def check_perms(user, team, codename):
         return False
     else:
         raise Http404("Nie należysz do tego zespołu!!!")
-
-    
