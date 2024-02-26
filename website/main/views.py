@@ -10,6 +10,7 @@ from django.contrib import messages
 from .models import Team, File, TeamMembership
 from django.contrib.auth.decorators import login_required, permission_required
 from .permission_tools import check_perms
+from django.db.models import Q
 
 
 
@@ -171,19 +172,23 @@ def get_team_and_members(id):
     return team, members
 
 
-
 @login_required
 def team_files(request, id):
     team, members = get_team_and_members(id)
-    files = File.objects.filter(team=team)
     
 
     if request.user.is_authenticated:
         user = request.user
+    
+    files = File.objects.filter(
+        team=team,
+        privacy_level__in=['public', 'confidencial', 'secret']
+    ).filter(
+        (Q(privacy_level='public')) | 
+        (Q(privacy_level='confidencial') & check_perms(user, team, 'view_confidencial')) | 
+        (Q(privacy_level='secret') & check_perms(user, team, 'view_secret'))
+)
 
-        
-
-        
 
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
@@ -199,6 +204,7 @@ def team_files(request, id):
 def edit_file(request, team_id, file_id):
     team, members = get_team_and_members(team_id)
     file = get_object_or_404(File, pk=file_id)
+    privacy_level = file.privacy_level
     form = EditFileForm(request.POST or None, instance=file)
    
     if request.user.is_authenticated:
@@ -218,8 +224,16 @@ def edit_file(request, team_id, file_id):
         form = EditFileForm( instance=file)
 
 
-    context = {'team':team, 'form':form, 'members': members, 'user':user}    
-    return render(request, 'teams/edit_file.html', context=context)
+    context = {'team':team, 'form':form, 'members': members, 'user':user}
+
+    if(
+        (privacy_level == 'public' and check_perms(user, team, 'change_file')) or
+        (privacy_level == 'confidencial' and check_perms(user, team, 'edit_confidencial')) or
+        (privacy_level == 'secret' and check_perms(user, team, 'edit_secret'))
+    ):    
+        return render(request, 'teams/edit_file.html', context=context)
+    else:
+        raise Http404("Nie masz uprawnień do edycji tego pliku.")
 
 @login_required
 def download_file(request,id):
@@ -232,9 +246,12 @@ def download_file(request,id):
     if (
         (privacy_level == 'public' and check_perms(user, team, 'download_file')) or
         (privacy_level == 'confidencial' and check_perms(user, team, 'download_confidencial')) or
-        (privacy_level == 'secret' and check_perms(user, team, 'download_secret'))
+        (privacy_level == 'secret' and check_perms(user, team, 'download_secret')) or
+        (file_instance.author == user)
     ):
         return file_instance.download(request)
+    
+
 
     raise Http404("Nie masz uprawnień do pobrania tego pliku.")
 
@@ -321,7 +338,12 @@ def team_add_member(request, id):
         form.team = team 
 
     context = {'team':team, 'form':form, 'members': members, 'user':user}
-    return render(request, 'teams/team_members.html', context=context)
+
+    if( check_perms(user, team, 'add_new_member') and check_perms(user, team, 'delete_member')):
+        return render(request, 'teams/team_members.html', context=context)
+    else:
+        raise Http404("Nie masz dostępu do tej strony!!!")
+
 
 @login_required
 def remove_member(request, team_id, member_id):

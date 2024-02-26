@@ -37,13 +37,15 @@
         <td>{{file.version}}</td>
         <td>
           {% if file.last_editor %}
-            {{ file.last_editor.username }}
+            {{ file.last_editor.get_full_name }}
           {% else %}
               Brak
           {% endif %}
         </td>
         <td class="d-flex justify-content-around  ">
-          <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          {% if check_perms %}
+            <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          {% endif %}
           {% if user == file.author %}
           <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="fa-solid fa-trash"></i></a>
 
@@ -61,7 +63,7 @@
                   <form method="POST">
                     {% csrf_token %}
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <button type="submit" class="btn btn-danger " value="{{file.id}}" name="file-id">Usuń</button>
+                    <button type="submit" class="btn btn-danger" value="{{file.id}}" name="file-id">Usuń</button>
                   </form>
                 </div>
               </div>

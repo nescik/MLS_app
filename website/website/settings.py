@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'gdstorage'
 ]
 
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'C:\\Users\\eperz\\Downloads\\djangomls-9e2d9e886c09.json'
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'D:\\djangomls-9e2d9e886c09.json'
 GOOGLE_DRIVE_STORAGE_DEBUG = True
 ENCRYPT_KEY = b'WCO03voL-Ex51Y-8sS1ymlbjGXApIjHfsbgZAj9rWQk='
 

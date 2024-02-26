@@ -112,6 +112,9 @@ class TeamMembership(models.Model):
 
     def __str__(self):
         return f'{self.team}--{self.user.get_full_name()}'
+    
+    def get_fullname_member(self):
+        return f'{self.user.get_full_name()}'
 
 
 class CustomFileExtensionValidator(FileExtensionValidator):
