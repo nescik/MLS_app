@@ -10,7 +10,6 @@ from django.contrib import messages
 from .models import Team, File, TeamMembership
 from django.contrib.auth.decorators import login_required, permission_required
 from .permission_tools import check_perms
-from django.db.models import Q
 
 
 
@@ -180,14 +179,11 @@ def team_files(request, id):
     if request.user.is_authenticated:
         user = request.user
     
-    files = File.objects.filter(
-        team=team,
-        privacy_level__in=['public', 'confidencial', 'secret']
-    ).filter(
-        (Q(privacy_level='public')) | 
-        (Q(privacy_level='confidencial') & check_perms(user, team, 'view_confidencial')) | 
-        (Q(privacy_level='secret') & check_perms(user, team, 'view_secret'))
-)
+    if (check_perms(user, team, 'view_file') and check_perms(user,team, 'view_confidencial')):
+        files = File.objects.filter(team=team, privacy_level__in=['public', 'confidencial'])
+    elif (check_perms(user, team, 'view_file') and check_perms(user, team, 'view_confidencial') and check_perms(user, team, 'view_secret')):
+        files = File.objects.filter(team=team, privacy_level__in=['confidencial', 'secret'])
+
 
 
     if request.method == 'POST':
