@@ -25,14 +25,19 @@
                   <a class="nav-link" href="{% url 'team_add_file' team.id %}">Prześlij pliki</a>
                 </li>
 
-                {% if user == team.founder %}
+
+                {% if 'manage_perms' in user_permissions %}
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'team_members' team.id %}">Zarządzaj użytkownikami</a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'team_permission' team.id %}">Uprawnienia</a>
                   </li>
-                {% endif %}
+                  {% elif 'delete_member' in user_permissions and 'add_new_member' in user_permissions %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'team_members' team.id %}">Zarządzaj użytkownikami</a>
+                  </li>
+                {% endif %}   
                 
               </ul>
             <div class="team-content">

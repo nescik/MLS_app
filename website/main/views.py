@@ -9,7 +9,8 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File, TeamMembership
 from django.contrib.auth.decorators import login_required, permission_required
-from .permission_tools import check_perms
+from .permission_tools import check_perms, get_user_perms
+from django.db.models import Q
 
 
 
@@ -175,16 +176,30 @@ def get_team_and_members(id):
 def team_files(request, id):
     team, members = get_team_and_members(id)
     
+    
 
     if request.user.is_authenticated:
         user = request.user
-    
-    if (check_perms(user, team, 'view_file') and check_perms(user,team, 'view_confidencial')):
-        files = File.objects.filter(team=team, privacy_level__in=['public', 'confidencial'])
-    elif (check_perms(user, team, 'view_file') and check_perms(user, team, 'view_confidencial') and check_perms(user, team, 'view_secret')):
-        files = File.objects.filter(team=team, privacy_level__in=['confidencial', 'secret'])
 
+        user_permissions = get_user_perms(user, team)
+        for perm in user_permissions:
+            print(perm)
+        
 
+    view_file_perms = check_perms(user, team, 'view_file')
+    view_confidencial_perms = check_perms(user, team, 'view_confidencial')
+    view_secret_perms = check_perms(user, team, 'view_secret')
+
+    if view_file_perms and view_confidencial_perms and view_secret_perms:
+        files = File.objects.filter(team=team)
+    else:
+        files = File.objects.filter(
+            team=team,
+            privacy_level__in=['public', 'confidencial']
+        ).filter(
+            (Q(privacy_level='public')) |
+            (Q(privacy_level='confidencial'))
+        )
 
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
@@ -193,7 +208,7 @@ def team_files(request, id):
             file.delete()
             redirect('team_files', id=team.id)
 
-    context = {'team': team, 'files': files, 'user':user, 'members': members, 'user':user}
+    context = {'team': team, 'files': files, 'user':user, 'members': members, 'user':user, 'user_permissions':user_permissions}
     return render(request, 'teams/team_files.html', context=context)
 
 @login_required
@@ -205,6 +220,7 @@ def edit_file(request, team_id, file_id):
    
     if request.user.is_authenticated:
         user = request.user
+        
 
     if request.method == 'POST':
         form = EditFileForm(request.POST, request.FILES, instance=file)
@@ -220,7 +236,7 @@ def edit_file(request, team_id, file_id):
         form = EditFileForm( instance=file)
 
 
-    context = {'team':team, 'form':form, 'members': members, 'user':user}
+    context = {'team':team, 'form':form, 'members': members, 'user':user, }
 
     if(
         (privacy_level == 'public' and check_perms(user, team, 'change_file')) or
@@ -260,6 +276,9 @@ def team_add_file(request, id):
     if request.user.is_authenticated:
         user = request.user
 
+        user_permissions = get_user_perms(user, team)
+        
+
     if request.method == 'POST':
         form = AddFileForm(request.POST or None, request.FILES or None)
         if form.is_valid():
@@ -271,7 +290,7 @@ def team_add_file(request, id):
     else:
         form = AddFileForm()
 
-    context = {'team':team, 'form':form, 'user_files':user_files, 'members': members, 'user':user}
+    context = {'team':team, 'form':form, 'user_files':user_files, 'members': members, 'user':user, 'user_permissions':user_permissions}
     return render(request, 'teams/team_add_file.html', context=context)
 
 
@@ -282,6 +301,8 @@ def team_permission(request, id):
 
     if request.user.is_authenticated:
         user = request.user
+
+        user_permissions = get_user_perms(user, team)
 
     users = User.objects.filter(is_superuser=False, teammembership__team=team).distinct()
    
@@ -306,7 +327,7 @@ def team_permission(request, id):
         forms = [EditUserPermission(team, user, prefix=str(user.id)) for user in users]
             
 
-    context = {'team':team, 'forms':forms, 'members': members, 'user':user}
+    context = {'team':team, 'forms':forms, 'members': members, 'user':user, 'user_permissions':user_permissions}
 
     if check_perms(user, team,'manage_perms'):
         return render(request, 'teams/team_permission.html', context=context)
@@ -319,6 +340,8 @@ def team_add_member(request, id):
 
     if request.user.is_authenticated:
         user = request.user
+         
+        user_permissions = get_user_perms(user, team)
 
     if request.method == 'POST':
         form = AddNewMember(request.POST or None, team=team)
@@ -333,7 +356,7 @@ def team_add_member(request, id):
         form = AddNewMember(team=team)
         form.team = team 
 
-    context = {'team':team, 'form':form, 'members': members, 'user':user}
+    context = {'team':team, 'form':form, 'members': members, 'user':user, 'user_permissions':user_permissions}
 
     if( check_perms(user, team, 'add_new_member') and check_perms(user, team, 'delete_member')):
         return render(request, 'teams/team_members.html', context=context)
@@ -345,7 +368,11 @@ def team_add_member(request, id):
 def remove_member(request, team_id, member_id):
     team = get_object_or_404(Team, id = team_id)
     member = get_object_or_404(User, id=member_id)
+    user = request.user
 
-    team.members.remove(member)
+    if check_perms(user, team, 'delete_member'):
+        team.members.remove(member)
+    else:
+        raise Http404("Nie ma uprawnien do usunięcia członka zespołu")
 
     return redirect('team_members', id=team.id)

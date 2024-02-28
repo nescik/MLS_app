@@ -11,3 +11,18 @@ def check_perms(user, team, codename):
         return False
     else:
         raise Http404("Nie należysz do tego zespołu!!!")
+
+
+def get_user_perms(user, team):
+    team_membership = TeamMembership.objects.filter(user=user, team=team).first()
+
+    user_permissions = []
+    if team_membership:
+        group = team_membership.groups.first()
+
+        
+        if group:
+            user_permissions += list(group.permissions.values_list('codename', flat=True))
+
+
+    return user_permissions

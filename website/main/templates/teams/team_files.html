@@ -43,9 +43,7 @@
           {% endif %}
         </td>
         <td class="d-flex justify-content-around  ">
-          {% if check_perms %}
             <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
-          {% endif %}
           {% if user == file.author %}
           <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="fa-solid fa-trash"></i></a>
 
