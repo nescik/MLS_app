@@ -182,8 +182,6 @@ def team_files(request, id):
         user = request.user
 
         user_permissions = get_user_perms(user, team)
-        for perm in user_permissions:
-            print(perm)
         
 
     view_file_perms = check_perms(user, team, 'view_file')
@@ -200,6 +198,8 @@ def team_files(request, id):
             (Q(privacy_level='public')) |
             (Q(privacy_level='confidencial'))
         )
+
+    
 
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
@@ -245,7 +245,7 @@ def edit_file(request, team_id, file_id):
     ):    
         return render(request, 'teams/edit_file.html', context=context)
     else:
-        raise Http404("Nie masz uprawnień do edycji tego pliku.")
+        return redirect('error_page')
 
 @login_required
 def download_file(request,id):
@@ -263,9 +263,7 @@ def download_file(request,id):
     ):
         return file_instance.download(request)
     
-
-
-    raise Http404("Nie masz uprawnień do pobrania tego pliku.")
+    return redirect('error_page')
 
 @login_required
 def team_add_file(request, id):
@@ -328,11 +326,8 @@ def team_permission(request, id):
             
 
     context = {'team':team, 'forms':forms, 'members': members, 'user':user, 'user_permissions':user_permissions}
-
-    if check_perms(user, team,'manage_perms'):
-        return render(request, 'teams/team_permission.html', context=context)
-    else:
-        raise Http404("Nie masz dostępu do tej strony!!!") 
+    return render(request, 'teams/team_permission.html', context=context)
+team_permission.required_permissions = ['manage_perms']
 
 @login_required
 def team_add_member(request, id):
@@ -357,12 +352,8 @@ def team_add_member(request, id):
         form.team = team 
 
     context = {'team':team, 'form':form, 'members': members, 'user':user, 'user_permissions':user_permissions}
-
-    if( check_perms(user, team, 'add_new_member') and check_perms(user, team, 'delete_member')):
-        return render(request, 'teams/team_members.html', context=context)
-    else:
-        raise Http404("Nie masz dostępu do tej strony!!!")
-
+    return render(request, 'teams/team_members.html', context=context)
+team_add_member.required_permissions = ['add_new_member', 'delete_member']
 
 @login_required
 def remove_member(request, team_id, member_id):
@@ -373,6 +364,10 @@ def remove_member(request, team_id, member_id):
     if check_perms(user, team, 'delete_member'):
         team.members.remove(member)
     else:
-        raise Http404("Nie ma uprawnien do usunięcia członka zespołu")
-
+        return redirect('error_page')
+    
     return redirect('team_members', id=team.id)
+
+
+def error_page(request):
+    return render(request, 'main/error_page.html')

@@ -22,7 +22,7 @@
       <th class="col-3" scope="col">Opis</th>
       <th class="col-2" scope="col">Data dodania</th>
       <th class="col-1" scope="col">Dodał</th>
-      <th class="col-1" scope="col">Wersja</th>
+      <th class="col-1 text-center" scope="col">Wersja</th>
       <th class="col-2" scope="col">Edytowane przez</th>
       <th class="col-1 text-center" scope="col">Akcja</th>
     </tr>
@@ -33,8 +33,8 @@
         <td>{{file.get_file_name}}</td>
         <td>{{file.description}}</td>
         <td>{{file.upload_date|date:"d.m.Y"}}, {{file.upload_date|time:"H:i"}}</td>
-        <td>{{file.author}}</td>
-        <td>{{file.version}}</td>
+        <td>{{file.author.get_full_name}}</td>
+        <td class="text-center">{{file.version}}</td>
         <td>
           {% if file.last_editor %}
             {{ file.last_editor.get_full_name }}
@@ -43,8 +43,19 @@
           {% endif %}
         </td>
         <td class="d-flex justify-content-around  ">
+          
+            
+
+          {% if 'edit_confidencial' in user_permissions and file.privacy_level == 'confidencial' or user == file.author%}
             <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
-          {% if user == file.author %}
+          {% elif 'edit_secret' in user_permissions and file.privacy_level == 'secret' or user == file.author %}
+            <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          {% elif 'change_file' in user_permissions and file.privacy_level == 'public' or user == file.author %}
+            <a href="{% url 'edit_file' team.id file.id %}" class="text-white"><i class="fa-solid fa-file-pen"></i></a>
+          {% endif %}
+         
+
+          {% if user == file.author or 'delete_file' in user_permissions%}
           <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="fa-solid fa-trash"></i></a>
 
           <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -69,7 +80,14 @@
           </div>
 
           {% endif %}
-          <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+
+          {% if 'download_confidencial' in user_permissions and file.privacy_level == 'confidencial' %}
+           <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+          {% elif 'download_secret' in user_permissions and file.privacy_level == 'secret' %}
+           <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+          {% elif 'download_file' in user_permissions and file.privacy_level == 'public' %}
+            <a href="{% url 'download_file' file.id %}" class="text-white" target="_blank"><i class="fa-solid fa-download"></i></a>
+          {% endif %}
         </td>
       </tr>
     {% endfor %}
