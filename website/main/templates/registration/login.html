@@ -18,7 +18,7 @@
                 {% csrf_token %} 
                 {{form.username|as_crispy_field}}
                 {{form.password|as_crispy_field}}
-                <button type="submit" class="btn btn-outline-light border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative btn-submit">Zaloguj się <i class="fa-solid fa-right-to-bracket border border-2 border-light rounded-circle position-absolute"></i></button>
+                <button type="submit" class="btn btn-outline-light border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative btn-submit">Zaloguj się <i class="fa-solid fa-right-to-bracket border border-2 border-light rounded-circle position-absolute button-icon"></i></button>
               </form>
               {% if messages %}
                   {% for message in messages  %}

@@ -114,16 +114,9 @@
     padding-right: 50px !important;
 }
 
-.fa-right-to-bracket{
-    position: absolute !important;
-    padding: 12px !important;
-    right: -2px !important;
-    background-color: #121212;
-    color: white !important;
-    
-}
 
-.fa-user-plus{
+
+.button-icon{
     position: absolute !important;
     padding: 12px !important;
     right: -2px !important;
@@ -216,4 +209,17 @@
 
 .alert-success{
     background-color: rgb(157, 255, 157) !important;
+}
+
+.error-div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.error-font{
+    font-size: 150px;
+    font-weight: bold;
 }

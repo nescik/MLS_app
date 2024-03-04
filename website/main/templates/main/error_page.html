@@ -7,8 +7,18 @@
 {% endblock title %}
 
 
-
+    
 {% block content %}
-    <h1> ERROR - 404 </h1>
+
+    <div class="error-div">
+        <h1>Coś poszło nie tak!</h1>
+        <span class="error-font">
+            404
+        </span>
+        <h3>Strona niezaleziona</h3>
+        <a  href="{% url 'home' %}"
+            class="nav-link border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative login-icon new_team" type="button">Strona główna<i class="fa-solid fa-house border border-2 border-light rounded-circle position-absolute button-icon"></i>
+        </a>
+    </div>
 
 {% endblock %}      

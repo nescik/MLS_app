@@ -173,6 +173,18 @@ def get_team_and_members(id):
 
 
 @login_required
+def team_board(request, id):
+    team, members = get_team_and_members(id)
+
+    if request.user.is_authenticated:
+        user = request.user
+
+        user_permissions = get_user_perms(user, team)
+
+    context = {'team':team, 'members':members, 'user':user, 'user_permissions':user_permissions}
+    return render(request, 'teams/team_detail.html', context=context)
+
+@login_required
 def team_files(request, id):
     team, members = get_team_and_members(id)
     
@@ -208,7 +220,7 @@ def team_files(request, id):
             file.delete()
             redirect('team_files', id=team.id)
 
-    context = {'team': team, 'files': files, 'user':user, 'members': members, 'user':user, 'user_permissions':user_permissions}
+    context = {'team': team, 'files': files, 'user':user, 'members': members, 'user_permissions':user_permissions}
     return render(request, 'teams/team_files.html', context=context)
 
 @login_required

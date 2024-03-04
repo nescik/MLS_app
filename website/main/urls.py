@@ -20,6 +20,7 @@ urlpatterns = [
     path('account-social', views.account_social, name='account-social'),
 
     #Teams
+    path('team/<int:id>/board', views.team_board, name='team_board'),
     path('team/<int:id>/files', views.team_files, name='team_files'),
     path('team/<int:id>/add_file', views.team_add_file, name='team_add_file'),
     path('team/<int:team_id>/edit_file/<int:file_id>', views.edit_file, name='edit_file'),
