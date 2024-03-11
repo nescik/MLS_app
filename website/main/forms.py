@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.forms import ModelForm
-from .models import Profile, Team, File, TeamMembership
+from .models import Profile, Team, File, TeamMembership, TeamMessage
 from django_countries.widgets import CountrySelectWidget
 
 class RegisterForm(UserCreationForm):
@@ -180,3 +180,13 @@ class EditUserPermission(ModelForm):
         self.fields['groups'].label = 'Grupa'
         self.fields['full_name'].initial = user.get_full_name
         self.fields['image'].initial = user.profile.image.url
+
+class AddTeamMessage(ModelForm):
+    class Meta:
+        model= TeamMessage
+        fields = ['content']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['content'].label = False

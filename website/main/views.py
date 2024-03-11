@@ -1,13 +1,13 @@
 import os
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .models import Team, File, TeamMembership
+from .models import Team, File, TeamMembership, TeamMessage
 from django.contrib.auth.decorators import login_required, permission_required
 from .permission_tools import check_perms, get_user_perms
 from django.db.models import Q
@@ -16,8 +16,11 @@ from django.db.models import Q
 
 @login_required
 def home(request):
-    teams = Team.objects.all()
-    user = request.user
+    
+    if request.user.is_authenticated:
+        user = request.user
+
+    teams = Team.objects.filter(members=user)
 
     if request.method == 'POST':
         form = CreateTeamForm(request.POST, user=user)
@@ -175,14 +178,39 @@ def get_team_and_members(id):
 @login_required
 def team_board(request, id):
     team, members = get_team_and_members(id)
+    team_messages = TeamMessage.objects.filter(team=team)
 
     if request.user.is_authenticated:
         user = request.user
 
         user_permissions = get_user_perms(user, team)
 
-    context = {'team':team, 'members':members, 'user':user, 'user_permissions':user_permissions}
-    return render(request, 'teams/team_detail.html', context=context)
+    if request.method == 'POST':
+        form = AddTeamMessage(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.team = team
+            message.author = user
+            message.save()
+            return redirect('team_board', id=team.id)
+    else:
+        form = AddTeamMessage()
+    
+
+    context = {'team':team, 'members':members, 'user':user, 'user_permissions':user_permissions, 'team_messages':team_messages, 'form':form}
+    return render(request, 'teams/team_board.html', context=context)
+
+@login_required
+def remove_message(request, team_id, message_id):
+    team = get_object_or_404(Team, id = team_id)
+    message = get_object_or_404(TeamMessage, id=message_id, team=team)
+    
+    if message.author == request.user:
+        message.delete()
+    else:
+        return redirect('error_page')
+
+    return redirect('team_board', id=team.id)
 
 @login_required
 def team_files(request, id):

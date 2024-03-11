@@ -45,7 +45,45 @@
               </ul>
             <div class="team-content">
               {% block team-content %}
-                BOARD
+
+
+                  <div class="container-fluid div-board">
+                    <div class="row team-messages" id="chat">
+                      {% for msg in team_messages %}
+                        <div class="inbox-message">
+                          <ul>
+                            <li>
+                                <div class="message-avatar">
+                                  <img src="{{ msg.author.profile.image.url }}" alt="">
+                                </div>
+                                <div class="message-body">
+                                  <div class="message-body-heading">
+                                    <h5>{{ msg.author.get_full_name }}</h5>
+                                  </div>
+                                  <div class="msg-content">
+                                    <p>{{ msg.content }}</p>
+                                  </div>
+                                  <span class="upload-date">{{msg.upload_date|date:"d.m.Y"}}, {{msg.upload_date|time:"H:i"}}</span>
+                                  {% if  user == msg.author %}
+                                    <div class="delete-msg">
+                                      <a href="{% url 'remove_message' team.id msg.id %}"><i class="fa-solid fa-x"></i></a>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                            </li>
+                          </ul>
+                        </div>
+                      {% endfor %}
+                    </div>
+                    <div class="row w-100">
+                      <form method="POST" class="send-msg row">
+                        {% csrf_token %}
+                        {{form|crispy}}
+                        <button type="submit"><i class="fa-solid fa-arrow-right"></i></button>
+                      </form>
+                    </div>
+                  </div>
+
               {% endblock team-content %}
             </div>
         </div>
@@ -77,6 +115,10 @@
           }
       });
   });
+
+  var objDiv = document.getElementById("chat");
+  objDiv.scrollTop = objDiv.scrollHeight;
+
 </script>
 
 {% endblock content %}

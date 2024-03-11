@@ -102,7 +102,8 @@ class Team(models.Model):
             ("add_new_member", "Can add new team memeber"),
             ("delete_member", "Can delete team memeber"),
             ("manage_perms", "Can manage all permission in team")
-        ]    
+        ]   
+
 
 
 class TeamMembership(models.Model):
@@ -115,6 +116,12 @@ class TeamMembership(models.Model):
     
     def get_fullname_member(self):
         return f'{self.user.get_full_name()}'
+
+class TeamMessage(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    upload_date = models.DateTimeField(default=timezone.now)
+    content = models.TextField(max_length=500, blank=True, null=True)
 
 
 class CustomFileExtensionValidator(FileExtensionValidator):

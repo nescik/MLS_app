@@ -72,25 +72,31 @@
     border-bottom-left-radius: 20px;      
 } */
 
+
+.nav-tabs{
+    margin-bottom: 30px !important;
+
+}
 .member-name:hover{
     background-color: #373737;
     border-radius: 12px;
 }
 
-form input, form select {
+form input, form select, form textarea {
     background-color:#292929 !important;
     border: none !important;
     color: white !important;
     border-bottom: solid 2px #373737!important;
 }
 
-form input:focus, form select:focus{
+form input:focus, form select:focus, form textarea:focus{
     background-color:#292929!important;
     color: white!important;
     border-bottom: solid 2px rgb(167, 167, 167)!important;
     outline: none!important;
     box-shadow: 0 0 10px rgba(167, 167, 167)!important;
 }
+
 
 .my-shadow{
     box-shadow: 0 0 20px rgb(52, 52, 52) !important;
@@ -107,6 +113,8 @@ form input:focus, form select:focus{
 .trash-icon:hover{
     background-color: #373737;
 }
+
+
 
 .delete-btn{
     background-color: transparent;
@@ -135,4 +143,128 @@ form input:focus, form select:focus{
 
 .fa-trash{
     cursor: pointer;
+}
+
+.div-board{
+    height: 702px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.team-messages{
+    overflow-y: auto;
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+.inbox-message ul {
+    padding: 0;
+    margin: 0;
+}
+.inbox-message ul li {
+    list-style: none;
+    position: relative;
+    padding: 15px 20px;
+    margin: 15px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgb(52, 52, 52) !important;
+}
+
+.inbox-message .message-avatar {
+    position: absolute;
+    left: 30px;
+    top: 50px;
+    transform: translateY(-50%);
+}
+.message-avatar img {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.inbox-message .message-body {
+    margin-left: 85px;
+    font-size: 15px;
+    color:#fefefe;
+    
+}
+
+.msg-content{
+    width: 90%;
+}
+
+.message-body-heading h5 {
+    font-weight: 600;
+	display:inline-block;
+    color:#989898;
+    margin: 0 0 7px 0;
+    padding: 0;
+}
+
+.messages-inbox .message-body p {
+    margin: 0;
+    padding: 0;
+    line-height: 27px;
+    font-size: 15px;
+}
+
+.upload-date {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    
+}
+
+.delete-msg{
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.fa-x{
+    color: white !important;
+    padding: 6px;
+    cursor: pointer;
+}
+.fa-x:hover{
+    background-color: #373737;
+    border-radius: 5px;
+}
+
+.send-msg{
+    padding: 15px 5px 0 50px !important;
+    margin-top: 5px;    
+    position: relative;
+}
+
+.send-msg button{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    top: 17px;
+    right: 20px;
+}
+
+.send-msg button:hover{
+    background-color: #373737;
+}
+
+.send-msg button .fa-arrow-right{
+    font-size: 30px;
+    color: white;
+}
+
+form textarea{
+    width: 95% !important;
+    height: 64px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    font-size: 16px;
+    resize: none;
 }
