@@ -1,7 +1,7 @@
 import os
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage, PasswordConfirmationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User, Group
 from django.contrib.auth.views import PasswordChangeView
@@ -11,6 +11,7 @@ from .models import Team, File, TeamMembership, TeamMessage, TeamActivityLog
 from django.contrib.auth.decorators import login_required, permission_required
 from .permission_tools import check_perms, get_user_perms
 from django.db.models import Q
+from django.contrib.auth.hashers import check_password
 
 
 
@@ -307,14 +308,32 @@ def download_file(request,id):
     privacy_level = file_instance.privacy_level
     user = request.user
     team = file_instance.team
-    
-    if (
+
+    if privacy_level == 'secret' and check_perms(user, team, 'download_secret'):
+        if request.method == 'POST':
+            form = PasswordConfirmationForm(request.POST)
+            if form.is_valid():
+                password = form.cleaned_data.get('password')
+                user_password = request.user.password
+                if check_password(password, user_password):
+                    TeamActivityLog.objects.create(user=user, action=f'Pobrano plik - {file_instance}', team=team)
+                    form.cleaned_data.clear()
+                    return file_instance.download(request)   
+                else:
+                    messages.error(request, 'Niepoprawne hasło!')
+        else:
+            form = PasswordConfirmationForm()
+
+
+        context = {'form':form, 'team':team}
+        return render(request, 'main/password_confirmation.html', context=context)
+
+    elif (
         (privacy_level == 'public' and check_perms(user, team, 'download_file')) or
         (privacy_level == 'confidencial' and check_perms(user, team, 'download_confidencial')) or
-        (privacy_level == 'secret' and check_perms(user, team, 'download_secret')) or
         (file_instance.author == user)
     ):
-        TeamActivityLog.objects.create(user = user, action = f'Pobrano plik - {file_instance}', team=team)
+        TeamActivityLog.objects.create(user=user, action=f'Pobrano plik - {file_instance}', team=team)
         return file_instance.download(request)
     
     return redirect('error_page')

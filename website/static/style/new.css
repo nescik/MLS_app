@@ -211,6 +211,10 @@
     background-color: rgb(157, 255, 157) !important;
 }
 
+.alert-danger{
+    background-color: rgb(249, 84, 84) !important;
+}
+
 .error-div{
     display: flex;
     flex-direction: column;
@@ -222,4 +226,19 @@
 .error-font{
     font-size: 150px;
     font-weight: bold;
+}
+
+.confirm-div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    
+}
+
+.confirm-div form {
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgb(52, 52, 52) !important;
 }

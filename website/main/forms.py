@@ -190,3 +190,15 @@ class AddTeamMessage(ModelForm):
         super().__init__(*args, **kwargs)
         
         self.fields['content'].label = False
+
+class PasswordConfirmationForm(ModelForm):
+    
+    password = forms.CharField(widget=PasswordInput())
+    class Meta:
+        model = User
+        fields = ['password']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['password'].label = 'Hasło'
