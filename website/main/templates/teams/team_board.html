@@ -28,7 +28,6 @@
                   <a class="nav-link" href="{% url 'team_add_file' team.id %}">Prześlij pliki</a>
                 </li>
 
-
                 {% if 'manage_perms' in user_permissions %}
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'team_members' team.id %}">Zarządzaj użytkownikami</a>
@@ -40,7 +39,14 @@
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'team_members' team.id %}">Zarządzaj użytkownikami</a>
                   </li>
-                {% endif %}   
+                {% endif %}
+
+                {% if  'view_logs' in user_permissions %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'team_logs' team.id %}">Aktywność</a>
+                </li>
+                {% endif %}
+                  
                 
               </ul>
             <div class="team-content">

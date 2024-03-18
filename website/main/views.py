@@ -3,11 +3,11 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import auth, User
+from django.contrib.auth.models import auth, User, Group
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .models import Team, File, TeamMembership, TeamMessage
+from .models import Team, File, TeamMembership, TeamMessage, TeamActivityLog
 from django.contrib.auth.decorators import login_required, permission_required
 from .permission_tools import check_perms, get_user_perms
 from django.db.models import Q
@@ -30,11 +30,15 @@ def home(request):
             team.founder = founder
             team.save() 
 
-            TeamMembership.objects.create(user=founder, team=team)
+            admin_group = Group.objects.get(name='Admin')
+            admin_membership = TeamMembership.objects.create(user=founder, team=team)
+            admin_membership.groups.set([admin_group])
 
             members = form.cleaned_data['members']
             for member in members:
                 TeamMembership.objects.create(user=member, team=team)
+
+                TeamActivityLog.objects.create(user = member, action = f'Dodano nowego członka.', team=team)
             
             return redirect('home')
     else:
@@ -60,10 +64,11 @@ def sign_up(request):
 
 
 def my_login(request):
-    form = LoginForm()
+    
     failed_attempts_key = 'failed_attempts'
 
     if request.method == 'POST':
+        form = LoginForm(request.POST )
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -83,11 +88,11 @@ def my_login(request):
                 messages.warning(request, 'Konto zablokowane! W celu odblokowania skontaktuj sie z administratorem')
         else:
             user_session_key = f'{failed_attempts_key}_{username}'
-
+            
             failed_attempts = request.session.get(user_session_key, 0)
             failed_attempts += 1
             request.session[user_session_key] = failed_attempts
-
+            print(f'{user_session_key}-{failed_attempts}')
             
             if failed_attempts > 5:
                 user_to_lock = get_object_or_404(User, username=username)
@@ -96,9 +101,12 @@ def my_login(request):
 
                 request.session[f'locked_account_{username}'] = True
                 messages.error(request, 'Przekroczono liczbę nieudanych prób logowania. Konto zostało zablokowane! W celu odblokowania skontaktuj sie z administratorem')
+            elif failed_attempts <= 3:
+                messages.warning(request, f'Błędny login lub hasło!')
             else:
-                messages.warning(request, f'Nieudane logowanie! Po przekroczeniu 5 prób konto zostanie zablokowane. Próba {failed_attempts}')
-                
+                messages.warning(request, f'Błędny login lub hasło! Po przekroczeniu 5 nieudanych prób logowania konto zostanie zablokowane!')
+    else:
+        form = LoginForm()            
             
     context = {"form":form}
 
@@ -192,6 +200,8 @@ def team_board(request, id):
             message.team = team
             message.author = user
             message.save()
+
+            TeamActivityLog.objects.create(user = user, action = f'Dodano nowy wpis.', team=team)
             return redirect('team_board', id=team.id)
     else:
         form = AddTeamMessage()
@@ -207,6 +217,7 @@ def remove_message(request, team_id, message_id):
     
     if message.author == request.user:
         message.delete()
+        TeamActivityLog.objects.create(user = request.user, action = 'Usunięto wpis.', team=team)
     else:
         return redirect('error_page')
 
@@ -246,6 +257,7 @@ def team_files(request, id):
         file = File.objects.filter(id=file_id).first()
         if file and file.author == request.user:
             file.delete()
+            TeamActivityLog.objects.create(user = user, action = 'Usunięto plik.', team=team)
             redirect('team_files', id=team.id)
 
     context = {'team': team, 'files': files, 'user':user, 'members': members, 'user_permissions':user_permissions}
@@ -271,6 +283,7 @@ def edit_file(request, team_id, file_id):
             file.version += 1
             file.save()
 
+            TeamActivityLog.objects.create(user = user, action = f'Edytowano plik - {file}', team=team)
             return redirect('team_files', id=team.id)
     else:
         form = EditFileForm( instance=file)
@@ -301,6 +314,7 @@ def download_file(request,id):
         (privacy_level == 'secret' and check_perms(user, team, 'download_secret')) or
         (file_instance.author == user)
     ):
+        TeamActivityLog.objects.create(user = user, action = f'Pobrano plik - {file_instance}', team=team)
         return file_instance.download(request)
     
     return redirect('error_page')
@@ -324,6 +338,7 @@ def team_add_file(request, id):
             file.team = team
             file.author = user
             file.save()
+            TeamActivityLog.objects.create(user = user, action = f'Dodano plik - {file}', team=team)
             return redirect('team_files', id=team.id)
     else:
         form = AddFileForm()
@@ -357,6 +372,7 @@ def team_permission(request, id):
                 if team_membership:
                     team_membership.groups.set([group]) if group else team_membership.groups.clear()
                     team_membership.save()
+                    TeamActivityLog.objects.create(user = user, action = f'Zmiana uprawnień - {user.get_full_name()}', team=team)
                     messages.success(request, f'Grupa użytkownika {user.get_full_name()} została pomyślnie zmieniona!')
    
 
@@ -385,7 +401,8 @@ def team_add_member(request, id):
             group = form.cleaned_data['groups']
             
             team_membership = TeamMembership.objects.create(user = member, team=team)
-            team_membership.groups.add(group)            
+            team_membership.groups.add(group)
+            TeamActivityLog.objects.create(user = user, action = f'Dodano nowego członka - {member.get_full_name()}', team=team)
             return redirect('team_members', id=team.id)
     else:
         form = AddNewMember(team=team)
@@ -403,11 +420,27 @@ def remove_member(request, team_id, member_id):
 
     if check_perms(user, team, 'delete_member'):
         team.members.remove(member)
+        TeamActivityLog.objects.create(user = user, action = f'Usunięto {member.get_full_name()} z zespołu.', team=team)
     else:
         return redirect('error_page')
     
     return redirect('team_members', id=team.id)
 
+
+@login_required
+def team_logs(request, id):
+    team, members = get_team_and_members(id)
+
+    if request.user.is_authenticated:
+        user = request.user
+         
+        user_permissions = get_user_perms(user, team)
+    
+    logs = TeamActivityLog.objects.filter(team=team).order_by('-timestamp')
+
+    context = {'team':team, 'members':members, 'user_permissions':user_permissions, 'logs':logs}
+    return render(request, 'teams/team_logs.html', context=context)
+team_logs.required_permissions = ['view_logs']
 
 def error_page(request):
     return render(request, 'main/error_page.html')

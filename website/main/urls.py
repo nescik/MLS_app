@@ -26,6 +26,7 @@ urlpatterns = [
     path('team/<int:team_id>/edit_file/<int:file_id>', views.edit_file, name='edit_file'),
     path('team/<int:id>/permission', views.team_permission, name='team_permission'),
     path('team/<int:id>/members', views.team_add_member, name='team_members'),
+    path('team/<int:id>/logs', views.team_logs, name='team_logs'),
     path('download/<int:id>', views.download_file, name='download_file'),
     path('team/<int:team_id>/remove_member/<int:member_id>', views.remove_member, name='remove_member'),
     path('team/<int:team_id>/remove_message/<int:message_id>', views.remove_message, name='remove_message')

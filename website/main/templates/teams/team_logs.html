@@ -1,0 +1,40 @@
+{% extends "teams/team_board.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Zespół {{ team.name }}
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block team-content %}
+
+    <div class="container-fluid div-logs">
+        <table class="table table-striped table-dark ">
+            <thead>
+              <tr>
+                <th class="col-2" scope="col">Użytkownik</th>
+                <th class="col-3" scope="col">Opis</th>
+                <th class="col-2" scope="col">Data akcji</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                    <td>{{log.user.get_full_name}}</td>
+                    <td>{{log.action}}</td>
+                    <td>{{log.timestamp|date:"d.m.Y"}}, {{log.timestamp|time:"H:i"}}</td>
+                    </tr>
+                {% endfor %}    
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+{% endblock %}

@@ -101,7 +101,8 @@ class Team(models.Model):
         permissions = [
             ("add_new_member", "Can add new team memeber"),
             ("delete_member", "Can delete team memeber"),
-            ("manage_perms", "Can manage all permission in team")
+            ("manage_perms", "Can manage all permission in team"),
+            ("view_logs", "Can see team logs")
         ]   
 
 
@@ -122,6 +123,12 @@ class TeamMessage(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     upload_date = models.DateTimeField(default=timezone.now)
     content = models.TextField(max_length=500, blank=True, null=True)
+
+class TeamActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=150)
+    timestamp = models.DateTimeField(default=timezone.now)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
 
 class CustomFileExtensionValidator(FileExtensionValidator):
