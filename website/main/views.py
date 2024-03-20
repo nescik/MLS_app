@@ -8,7 +8,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Team, File, TeamMembership, TeamMessage, TeamActivityLog
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from .permission_tools import check_perms, get_user_perms
 from django.db.models import Q
 from django.contrib.auth.hashers import check_password
@@ -317,7 +317,6 @@ def download_file(request,id):
                 user_password = request.user.password
                 if check_password(password, user_password):
                     TeamActivityLog.objects.create(user=user, action=f'Pobrano plik - {file_instance}', team=team)
-                    form.cleaned_data.clear()
                     return file_instance.download(request)   
                 else:
                     messages.error(request, 'Niepoprawne hasło!')
@@ -462,4 +461,4 @@ def team_logs(request, id):
 team_logs.required_permissions = ['view_logs']
 
 def error_page(request):
-    return render(request, 'main/error_page.html')
+    return render(request, '404.html')

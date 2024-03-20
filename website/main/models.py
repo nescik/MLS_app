@@ -68,8 +68,6 @@ class Profile(models.Model):
 class Key(models.Model):
     value = models.CharField(max_length=44)
 
-
-
         
 class Team(models.Model):
     name = models.CharField(max_length=255)
