@@ -66,14 +66,12 @@ def sign_up(request):
 
 def my_login(request):
     
-    failed_attempts_key = 'failed_attempts'
-
     if request.method == 'POST':
         form = LoginForm(request.POST )
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request=request, username=username, password=password)
 
         if user is not None:
             if user.is_active:
@@ -83,29 +81,11 @@ def my_login(request):
                 if not profile.is_profile_complete():
                     return redirect('account-general')
                 else:
-                    request.session[failed_attempts_key] = 0
                     return redirect('home')
             else:
                 messages.warning(request, 'Konto zablokowane! W celu odblokowania skontaktuj sie z administratorem')
         else:
-            user_session_key = f'{failed_attempts_key}_{username}'
-            
-            failed_attempts = request.session.get(user_session_key, 0)
-            failed_attempts += 1
-            request.session[user_session_key] = failed_attempts
-            print(f'{user_session_key}-{failed_attempts}')
-            
-            if failed_attempts > 5:
-                user_to_lock = get_object_or_404(User, username=username)
-                user_to_lock.is_active = False
-                user_to_lock.save()
-
-                request.session[f'locked_account_{username}'] = True
-                messages.error(request, 'Przekroczono liczbę nieudanych prób logowania. Konto zostało zablokowane! W celu odblokowania skontaktuj sie z administratorem')
-            elif failed_attempts <= 3:
-                messages.warning(request, f'Błędny login lub hasło!')
-            else:
-                messages.warning(request, f'Błędny login lub hasło! Po przekroczeniu 5 nieudanych prób logowania konto zostanie zablokowane!')
+            messages.warning(request, f'Błędny login lub hasło!')
     else:
         form = LoginForm()            
             

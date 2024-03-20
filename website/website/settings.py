@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!jih&=3stqx$25zo%!pdtn8@z#ke)d-jze8ygx$pno-f@(d=ka'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -43,8 +43,9 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_countries',
     'gdstorage',
-]
 
+    'axes',
+]
 
 
 
@@ -52,7 +53,11 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'D:\\djangomls-9e2d9e886c09.json'
 GOOGLE_DRIVE_STORAGE_DEBUG = True
 ENCRYPT_KEY = b'WCO03voL-Ex51Y-8sS1ymlbjGXApIjHfsbgZAj9rWQk='
 
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.AllowAllUsersModelBackend', 
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',                   
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -64,6 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middlewares.CheckPermissionsMiddleware',
 
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -151,3 +157,13 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 LOGIN_URL = 'my-login'
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = 'my-login'
+
+
+#Axes configuration
+AXES_FAILURE_LIMIT = 2
+AXES_LOCKOUT_TEMPLATE = 'failed_login.html'
+AXES_RESET_ON_SUCCESS = True
+AXES_ENABLE_ACCESS_FAILURE_LOG = True
+
+
+ 

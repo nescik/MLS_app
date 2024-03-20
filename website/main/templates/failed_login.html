@@ -3,7 +3,7 @@
 
 
 {% block title %}
-    Error 404
+    Konto zablokowane
 {% endblock title %}
 
 
@@ -11,11 +11,7 @@
 {% block content %}
 
     <div class="error-div">
-        <h1>Coś poszło nie tak!</h1>
-        <span class="error-font">
-            404
-        </span>
-        <h3>Strona nieznaleziona</h3>
+        <h3 class="mb-5">Konto zablokowane: zbyt wiele prób logowania. Skontaktuj się z administratorem, aby odblokować konto.</h3>
         <a  href="{% url 'home' %}"
             class="nav-link border border-2 border-light rounded-pill d-flex justify-content-center align-items-center gap-3 position-relative login-icon new_team" type="button">Strona główna<i class="fa-solid fa-house border border-2 border-light rounded-circle position-absolute button-icon"></i>
         </a>
