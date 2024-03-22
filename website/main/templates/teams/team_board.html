@@ -14,7 +14,7 @@
 {% block content %}
 
 <div class="container-fluid team-container ">
-  <h3 class="mt-3">Jesteś w zespole {{team.name}}</h3>
+  <h3 class="mt-3">Jesteś w zespole - <strong>{{team.name}}</strong> </h3>
     <div class="row ">
         <div class="col-10 team-col">
             <ul class="nav nav-tabs">
@@ -46,8 +46,12 @@
                   <a class="nav-link" href="{% url 'team_logs' team.id %}">Aktywność</a>
                 </li>
                 {% endif %}
-                  
-                
+
+                {% if 'change_team' in user_permissions %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'team_manage' team.id %}">Zarządzaj zespołem</a>
+                  </li>
+                {% endif %}
               </ul>
             <div class="team-content">
               {% block team-content %}

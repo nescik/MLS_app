@@ -242,3 +242,7 @@
     border-radius: 10px;
     box-shadow: 0 0 20px rgb(52, 52, 52) !important;
 }
+
+.btn-close{
+    background-color: white !important;
+}

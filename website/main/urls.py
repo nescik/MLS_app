@@ -22,6 +22,7 @@ urlpatterns = [
     #Teams
     path('team/<int:id>/board', views.team_board, name='team_board'),
     path('team/<int:id>/files', views.team_files, name='team_files'),
+    path('team/<int:id>/manage', views.team_manage, name='team_manage'),
     path('team/<int:id>/add_file', views.team_add_file, name='team_add_file'),
     path('team/<int:team_id>/edit_file/<int:file_id>', views.edit_file, name='edit_file'),
     path('team/<int:id>/permission', views.team_permission, name='team_permission'),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('team/<int:id>/logs', views.team_logs, name='team_logs'),
     path('download/<int:id>', views.download_file, name='download_file'),
     path('team/<int:team_id>/remove_member/<int:member_id>', views.remove_member, name='remove_member'),
-    path('team/<int:team_id>/remove_message/<int:message_id>', views.remove_message, name='remove_message')
+    path('team/<int:team_id>/remove_message/<int:message_id>', views.remove_message, name='remove_message'),
+    path('team/<int:id>/delete', views.delete_team, name='delete_team')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

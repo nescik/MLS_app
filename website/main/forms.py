@@ -202,3 +202,13 @@ class PasswordConfirmationForm(ModelForm):
         super().__init__(*args, **kwargs)
         
         self.fields['password'].label = 'Hasło'
+
+class ChangeTeamNameForm(ModelForm):
+    class Meta:
+        model = Team
+        fields = ['name']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['name'].label = 'Nazwa'

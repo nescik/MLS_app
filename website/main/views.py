@@ -1,7 +1,7 @@
 import os
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage, PasswordConfirmationForm
+from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage, PasswordConfirmationForm, ChangeTeamNameForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import auth, User, Group
 from django.contrib.auth.views import PasswordChangeView
@@ -424,6 +424,16 @@ def remove_member(request, team_id, member_id):
     
     return redirect('team_members', id=team.id)
 
+@login_required
+def delete_team(request, id):
+
+    team = get_object_or_404(Team, pk=id)
+    user = request.user
+    if check_perms(user, team, 'delete_team'):
+        team.delete()
+        return redirect('home')
+    else:
+        return redirect('error_page')
 
 @login_required
 def team_logs(request, id):
@@ -439,6 +449,28 @@ def team_logs(request, id):
     context = {'team':team, 'members':members, 'user_permissions':user_permissions, 'logs':logs}
     return render(request, 'teams/team_logs.html', context=context)
 team_logs.required_permissions = ['view_logs']
+
+def team_manage(request, id):
+    team, members = get_team_and_members(id)
+
+    if request.user.is_authenticated:
+        user = request.user
+         
+        user_permissions = get_user_perms(user, team)
+
+    if request.method == 'POST':
+        form = ChangeTeamNameForm(request.POST)
+        if form.is_valid():
+            new_team_name = form.cleaned_data['name']
+            team.name = new_team_name
+            team.save()
+            return redirect('team_manage', id=team.id)
+    else:
+        form = ChangeTeamNameForm()
+
+    context = {'team':team, 'members':members, 'user_permissions':user_permissions, 'form':form}
+    return render(request, 'teams/team_manage.html', context=context)
+team_logs.required_permissions = ['change_team']
 
 def error_page(request):
     return render(request, '404.html')

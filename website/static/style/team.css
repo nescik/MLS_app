@@ -23,6 +23,7 @@
 .members-col{
     box-shadow: 0 0 20px rgb(52, 52, 52) !important;
     max-height: 780px !important;
+    min-height: 780px !important;
     border-radius: 20px;
     padding: 20px;
     overflow:auto;
@@ -274,3 +275,18 @@ form textarea{
     font-size: 16px;
     resize: none;
 }
+
+.change-name-form {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    flex-direction: column;
+    max-width: 400px; 
+    margin: 0 auto; 
+}
+
+.change-name-form input{
+    width: 300px;
+}
+
+

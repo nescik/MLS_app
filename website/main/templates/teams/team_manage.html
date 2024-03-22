@@ -1,0 +1,55 @@
+{% extends "teams/team_board.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Zespół {{ team.name }}
+{% endblock title %}
+
+{% block navbar %}
+    {% include 'main/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block team-content %}
+
+<div class="container justify-content-center mt-5">
+    <div class="row text-center">
+        <h3>Zmień nazwę zespołu</h3>
+        <form method="POST" class=" justify-content-center change-name-form">
+            {% csrf_token %}
+            {{form|crispy}}
+        <button type="submit" class="btn btn-outline-light border-2 rounded-pill">Zmień</button>
+        </form>
+    </div>
+    <div class="row text-center mt-5">
+        <h3>Usuń zespół</h3>
+        <div class="mt-2">
+            <button type="button" class="btn btn-outline-light border-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Usuń</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Czy na pewno usunąć zespoł - {{ team.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="idDeleteModalBody">
+          <h4>Wszystkie dane związne z tym zespołem zostaną usunięte!</h4>
+        </div>
+        <div class="modal-footer">
+          <form action="" method="GET" id="confirmDeleteForm">
+            <a class="btn btn-danger" href="{% url 'delete_team' team.id %}">Usuń</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock %}
