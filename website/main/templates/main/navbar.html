@@ -8,12 +8,13 @@
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Features</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Pricing</a>
-      </li>
+      {% if user_teams %}
+        {% for team in user_teams %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'team_board' team.id %}">{{ team.name }}</a>
+          </li>
+        {% endfor %}
+      {% endif %}
     </ul>
     <div class="navbar-nav ">
       {% if user.is_authenticated %}
@@ -24,7 +25,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-right">
               <li><a class="dropdown-item" href="{% url 'account-general' %}">Profil</a></li>
-              <li><a class="dropdown-item" href="#">Twoje zespoły</a></li>
+              <li><a class="dropdown-item" href="{% url 'home' %}">Twoje zespoły</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>

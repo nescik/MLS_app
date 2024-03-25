@@ -1,5 +1,4 @@
-import os
-from django.http import Http404
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, LoginForm, EditUserForm, CustomPasswordChangeForm, EditInfoUserForm, CreateTeamForm, AddFileForm, AddNewMember, EditFileForm, EditUserPermission, AddTeamMessage, PasswordConfirmationForm, ChangeTeamNameForm
 from django.contrib.auth import authenticate, login
@@ -7,12 +6,12 @@ from django.contrib.auth.models import auth, User, Group
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .models import Team, File, TeamMembership, TeamMessage, TeamActivityLog
+from .models import Profile, Team, File, TeamMembership, TeamMessage, TeamActivityLog
 from django.contrib.auth.decorators import login_required
 from .permission_tools import check_perms, get_user_perms
 from django.db.models import Q
 from django.contrib.auth.hashers import check_password
-
+from django.utils import timezone
 
 
 @login_required
@@ -80,6 +79,9 @@ def my_login(request):
                 profile = user.profile
                 if not profile.is_profile_complete():
                     return redirect('account-general')
+                elif profile.check_password_change():
+                    messages.warning(request, 'Upłynęło 30 dni od ostatniej zmiany hasła. Prosze zmienić hasło.')
+                    return redirect('account-change-password')
                 else:
                     return redirect('home')
             else:
@@ -132,13 +134,13 @@ class PasswordsChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        profile = Profile.objects.get(user=self.request.user)
+        profile.last_password_change = timezone.now()
+        profile.save()
         messages.success(self.request, 'Hasło zostało zmienione pomyślnie')
         return response        
     
-@login_required
-def account_change_password(request):
 
-    return render(request, 'user_profile/account_change_password.html') 
 
 @login_required
 def account_info(request):

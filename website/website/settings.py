@@ -43,11 +43,12 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_countries',
     'gdstorage',
-
+    'django_admin_logs',
     'axes',
 ]
 
-
+DJANGO_ADMIN_LOGS_DELETABLE = True
+DJANGO_ADMIN_LOGS_ENABLED = True
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'D:\\djangomls-9e2d9e886c09.json'
 GOOGLE_DRIVE_STORAGE_DEBUG = True
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.context_processors.user_teams'
             ],
         },
     },
@@ -160,9 +162,9 @@ LOGOUT_REDIRECT_URL = 'my-login'
 
 
 #Axes configuration
-AXES_FAILURE_LIMIT = 2
+AXES_FAILURE_LIMIT = 5
 AXES_LOCKOUT_TEMPLATE = 'failed_login.html'
-AXES_RESET_ON_SUCCESS = True
+AXES_RESET_ON_SUCCESS = False
 AXES_ENABLE_ACCESS_FAILURE_LOG = True
 
 

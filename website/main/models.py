@@ -34,6 +34,7 @@ class Profile(models.Model):
     age = models.PositiveSmallIntegerField(blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
+    last_password_change = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
     def __str__(self) :
         return f'{self.user.get_full_name()}'
@@ -64,6 +65,13 @@ class Profile(models.Model):
 
     def is_profile_complete(self):
         return bool(self.user.first_name and self.user.last_name)
+
+    def check_password_change(self, days=30):
+    
+        if self.last_password_change:
+            delta = timezone.now() - self.last_password_change
+            return delta.days >= days
+        return False
 
 class Key(models.Model):
     value = models.CharField(max_length=44)
@@ -119,7 +127,9 @@ class TeamMembership(models.Model):
 class TeamMessage(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    upload_date = models.DateTimeField(default=timezone.now)
+    upload_date = models.DateTimeField(
+        
+    )
     content = models.TextField(max_length=500, blank=True, null=True)
 
 class TeamActivityLog(models.Model):
