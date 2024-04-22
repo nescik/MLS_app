@@ -52,7 +52,14 @@ DJANGO_ADMIN_LOGS_ENABLED = True
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'D:\\djangomls-9e2d9e886c09.json'
 GOOGLE_DRIVE_STORAGE_DEBUG = True
-ENCRYPT_KEY = b'WCO03voL-Ex51Y-8sS1ymlbjGXApIjHfsbgZAj9rWQk='
+
+KEY_FILE = 'D:\key.txt'
+
+def get_encrypt_key():
+    with open(KEY_FILE, 'r') as file:
+        return file.read().strip()
+    
+ENCRYPT_KEY = get_encrypt_key()
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.AllowAllUsersModelBackend', 

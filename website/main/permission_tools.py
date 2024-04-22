@@ -20,7 +20,6 @@ def get_user_perms(user, team):
     if team_membership:
         group = team_membership.groups.first()
 
-        
         if group:
             user_permissions += list(group.permissions.values_list('codename', flat=True))
 
