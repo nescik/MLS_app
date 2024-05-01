@@ -45,10 +45,23 @@ INSTALLED_APPS = [
     'gdstorage',
     'django_admin_logs',
     'axes',
+    'easyaudit',
 ]
 
 DJANGO_ADMIN_LOGS_DELETABLE = True
 DJANGO_ADMIN_LOGS_ENABLED = True
+
+DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS = False
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = False
+DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA = [
+   'main.profile',
+   'axes.accesslog',
+   'axes.accessattempt',
+   'axes.accessfailurelog',
+   'main.teamactivitylog',
+   'auth.user'
+]
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'D:\\djangomls-9e2d9e886c09.json'
 GOOGLE_DRIVE_STORAGE_DEBUG = True
@@ -64,7 +77,8 @@ ENCRYPT_KEY = get_encrypt_key()
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.AllowAllUsersModelBackend', 
     'axes.backends.AxesStandaloneBackend',
-    'django.contrib.auth.backends.ModelBackend',                   
+    'django.contrib.auth.backends.ModelBackend',
+                       
 ]
 
 MIDDLEWARE = [
@@ -78,6 +92,7 @@ MIDDLEWARE = [
     'main.middlewares.CheckPermissionsMiddleware',
 
     'axes.middleware.AxesMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
 
 ROOT_URLCONF = 'website.urls'

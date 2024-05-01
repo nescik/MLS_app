@@ -130,12 +130,17 @@ class TeamMessage(models.Model):
     upload_date = models.DateTimeField(default=timezone.now)
     content = models.TextField(max_length=500, blank=True, null=True)
 
+    def __str__(self):
+        return f'{self.author} - {self.content[:50]}...'
+
 class TeamActivityLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=150)
     timestamp = models.DateTimeField(default=timezone.now)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.user} - {self.team}'
 
 class CustomFileExtensionValidator(FileExtensionValidator):
     message = 'Niedozwolone rozszerzenie pliku. Akceptowane rozszerzenia to: %(allowed_extensions)s'
@@ -193,7 +198,8 @@ class File(models.Model):
     privacy_level = models.CharField(max_length=12, choices=PRIVACY_CHOICES, default='public')
 
     def __str__(self):
-        return self.file.name
+        file_name = os.path.basename(self.file.name)
+        return f'{self.author} - {file_name}'
     
     def get_file_name(self):
         return os.path.basename(self.file.name)
