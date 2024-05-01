@@ -127,9 +127,7 @@ class TeamMembership(models.Model):
 class TeamMessage(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    upload_date = models.DateTimeField(
-        
-    )
+    upload_date = models.DateTimeField(default=timezone.now)
     content = models.TextField(max_length=500, blank=True, null=True)
 
 class TeamActivityLog(models.Model):
@@ -188,7 +186,7 @@ class File(models.Model):
     description = models.CharField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=upload_to_team_folder, storage=gd_storage, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
+    file = models.FileField(upload_to=upload_to_team_folder, validators=[CustomFileExtensionValidator(['pdf', 'doc', 'docx'])])
     upload_date = models.DateTimeField(default=timezone.now)
     version = models.SmallIntegerField(default=1)
     last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_edited_files')
@@ -216,7 +214,6 @@ class File(models.Model):
     def download(self, request):
 
         if self.team.key:
-            
             fernet_team = self.get_team_key()
             
             encrypt_content = self.file.read()

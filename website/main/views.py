@@ -200,7 +200,7 @@ def remove_message(request, team_id, message_id):
     
     if message.author == request.user:
         message.delete()
-        TeamActivityLog.objects.create(user = request.user, action = 'Usunięto wpis.', team=team)
+        TeamActivityLog.objects.create(user = request.user, action = f'Usunięto wpis: {message.content}', team=team)
     else:
         return redirect('error_page')
 
@@ -240,7 +240,7 @@ def team_files(request, id):
         file = File.objects.filter(id=file_id).first()
         if file and file.author == request.user:
             file.delete()
-            TeamActivityLog.objects.create(user = user, action = 'Usunięto plik.', team=team)
+            TeamActivityLog.objects.create(user = user, action = f'Usunięto plik - {file.get_file_name()}', team=team)
             redirect('team_files', id=team.id)
 
     context = {'team': team, 'files': files, 'user':user, 'members': members, 'user_permissions':user_permissions}
@@ -266,7 +266,7 @@ def edit_file(request, team_id, file_id):
             file.version += 1
             file.save()
 
-            TeamActivityLog.objects.create(user = user, action = f'Edytowano plik - {file}', team=team)
+            TeamActivityLog.objects.create(user = user, action = f'Edytowano plik - {file.get_file_name()}', team=team)
             return redirect('team_files', id=team.id)
     else:
         form = EditFileForm( instance=file)
@@ -298,7 +298,7 @@ def download_file(request,id):
                 password = form.cleaned_data.get('password')
                 user_password = request.user.password
                 if check_password(password, user_password):
-                    TeamActivityLog.objects.create(user=user, action=f'Pobrano plik - {file_instance}', team=team)
+                    TeamActivityLog.objects.create(user=user, action=f'Pobrano plik - {file_instance.get_file_name()}', team=team)
                     return file_instance.download(request)   
                 else:
                     messages.error(request, 'Niepoprawne hasło!')
@@ -338,7 +338,7 @@ def team_add_file(request, id):
             file.team = team
             file.author = user
             file.save()
-            TeamActivityLog.objects.create(user = user, action = f'Dodano plik - {file}', team=team)
+            TeamActivityLog.objects.create(user = user, action = f'Dodano plik - {file.get_file_name()} - {file.privacy_level}', team=team)
             return redirect('team_files', id=team.id)
     else:
         form = AddFileForm()
